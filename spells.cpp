@@ -154,7 +154,7 @@ void Game::ProcessCastOrder(Unit * u,AString * o, OrdersCheck *pCheck )
 	}
 }
 
-void Game::ProcessMindReading(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessMindReading(Unit *u,AString *o, OrdersCheck *)
 {
 	UnitId *id = ParseUnit(o);
 
@@ -172,7 +172,7 @@ void Game::ProcessMindReading(Unit *u,AString *o, OrdersCheck *pCheck )
 	u->castorders = order;
 }
 
-void Game::ProcessBirdLore(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessBirdLore(Unit *u,AString *o, OrdersCheck *)
 {
 	AString *token = o->gettoken();
 
@@ -220,7 +220,7 @@ void Game::ProcessBirdLore(Unit *u,AString *o, OrdersCheck *pCheck )
 	delete token;
 }
 
-void Game::ProcessInvisibility(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessInvisibility(Unit *u,AString *o, OrdersCheck * )
 {
 	AString *token = o->gettoken();
 
@@ -250,7 +250,7 @@ void Game::ProcessInvisibility(Unit *u,AString *o, OrdersCheck *pCheck )
 	}
 }
 
-void Game::ProcessPhanDemons(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessPhanDemons(Unit *u,AString *o, OrdersCheck * )
 {
 	CastIntOrder *order = new CastIntOrder;
 	order->spell = S_CREATE_PHANTASMAL_DEMONS;
@@ -298,7 +298,7 @@ void Game::ProcessPhanDemons(Unit *u,AString *o, OrdersCheck *pCheck )
 	u->castorders = order;
 }
 
-void Game::ProcessPhanUndead(Unit *u,AString *o, OrdersCheck *pCheck)
+void Game::ProcessPhanUndead(Unit *u,AString *o, OrdersCheck *)
 {
 	CastIntOrder *order = new CastIntOrder;
 	order->spell = S_CREATE_PHANTASMAL_UNDEAD;
@@ -346,7 +346,7 @@ void Game::ProcessPhanUndead(Unit *u,AString *o, OrdersCheck *pCheck)
 	u->castorders = order;
 }
 
-void Game::ProcessPhanBeasts(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessPhanBeasts(Unit *u,AString *o, OrdersCheck * )
 {
 	CastIntOrder *order = new CastIntOrder;
 	order->spell = S_CREATE_PHANTASMAL_BEASTS;
@@ -388,7 +388,7 @@ void Game::ProcessPhanBeasts(Unit *u,AString *o, OrdersCheck *pCheck )
 	u->castorders = order;
 }
 
-void Game::ProcessGenericSpell(Unit *u,int spell, OrdersCheck *pCheck )
+void Game::ProcessGenericSpell(Unit *u,int spell, OrdersCheck * )
 {
 	CastOrder *orders = new CastOrder;
 	orders->spell = spell;
@@ -398,7 +398,7 @@ void Game::ProcessGenericSpell(Unit *u,int spell, OrdersCheck *pCheck )
 }
 
 void Game::ProcessRegionSpell(Unit *u, AString *o, int spell,
-		OrdersCheck *pCheck)
+		OrdersCheck *)
 {
 	AString *token = o->gettoken();
 	int x = -1;
@@ -465,7 +465,7 @@ void Game::ProcessRegionSpell(Unit *u, AString *o, int spell,
 		u->castorders = order;
 }
 
-void Game::ProcessCastPortalLore(Unit *u,AString *o, OrdersCheck *pCheck )
+void Game::ProcessCastPortalLore(Unit *u,AString *o, OrdersCheck * )
 {
 	AString *token = o->gettoken();
 	if (!token) {

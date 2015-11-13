@@ -4016,7 +4016,7 @@ static ObjectType ot[] =
 	 -1,0,NULL,0,
 	 0,0,0,
 	 -1,-1,
-	 {0,0,0,0,0,0}},
+	 {0,0,0,0,0,0}}
 };
 
 ObjectType *ObjectDefs = ot;

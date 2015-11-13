@@ -11,7 +11,7 @@ GAME ?= standard
 
 CPLUS = g++
 CC = gcc
-CFLAGS = -g -I. -I.. -Wall
+CFLAGS = -g -I. -I.. -Wall -Wextra -Werror -Wno-missing-field-initializers
 
 RULESET_OBJECTS = extra.o map.o monsters.o rules.o world.o 
 
