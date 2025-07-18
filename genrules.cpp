@@ -880,7 +880,8 @@ int Game::generate_rules(const std::string& rules, const std::string& css, const
 
         std::ostringstream buffer;
 
-        int count = FactionTypes->size();
+        assert(FactionTypes->size() <= INT_MAX);
+        int count = (int) FactionTypes->size();
         int singleValue = Globals->FACTION_POINTS / count;
         int reminder = Globals->FACTION_POINTS % count;
         for (auto &fp : *FactionTypes) {
