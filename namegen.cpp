@@ -320,7 +320,7 @@ std::string getObjectName(const int typeIndex, const ObjectType& type) {
     return type.name;
 }
 
-std::string getForestName(std::string s, int area) {
+std::string getForestName(std::string s, size_t area) {
     if (area < 15) {
         return s + rng::one_of({" Forest", " Woods"});
     }
@@ -328,7 +328,7 @@ std::string getForestName(std::string s, int area) {
     return "Great " + s + " Forest";
 }
 
-std::string getJungleName(std::string s, int area) {
+std::string getJungleName(std::string s, size_t area) {
     if (area < 15) {
         return s + rng::one_of({" Jungle", " Woods"});
     }
@@ -336,7 +336,7 @@ std::string getJungleName(std::string s, int area) {
     return "Great " + s + " Jungle";
 }
 
-std::string getDesertName(std::string s, int area) {
+std::string getDesertName(std::string s, size_t area) {
     if (area < 15) {
         return s + rng::one_of({" Desert", " Sands"});
     }
@@ -348,7 +348,7 @@ std::string getVolcanoName(std::string s) {
     return s + rng::one_of({" Volcano", " Peak"});
 }
 
-std::string getMountainName(std::string s, int area) {
+std::string getMountainName(std::string s, size_t area) {
     if (area == 1) {
         return s + rng::one_of({" Mountain", " Peak"});
     }
@@ -360,7 +360,7 @@ std::string getMountainName(std::string s, int area) {
     return "Great " + s + " Mountains";
 }
 
-std::string getHillsName(std::string s, int area) {
+std::string getHillsName(std::string s, size_t area) {
     if (area == 1) {
         return s + rng::one_of({" Hill", " Barrow"});
     }
@@ -372,7 +372,7 @@ std::string getHillsName(std::string s, int area) {
     return "Great " + s + " Hills";
 }
 
-std::string getSwampName(std::string s, int area) {
+std::string getSwampName(std::string s, size_t area) {
     if (area < 15) {
         return s + rng::one_of({" Swamp", " Marshes"});
     }
@@ -380,7 +380,7 @@ std::string getSwampName(std::string s, int area) {
     return "Great " + s + " Swamp";
 }
 
-std::string getPlainName(std::string s, int area) {
+std::string getPlainName(std::string s, size_t area) {
     if(area == 1) {
         return s + rng::one_of({" Dale", " Plain"});
     }
@@ -396,7 +396,7 @@ std::string getTundraName(std::string s) {
     return s + " Tundra";
 }
 
-std::string getOceanName(std::string s, int area) {
+std::string getOceanName(std::string s, size_t area) {
     if(area == 1) {
         return s + rng::one_of({" Lake", " Pond"});
     }
@@ -408,7 +408,7 @@ std::string getOceanName(std::string s, int area) {
     return s + " Ocean";
 }
 
-std::string getRegionName(const Ethnicity etnos, const int type, const int size, const bool island) {
+std::string getRegionName(const Ethnicity etnos, int type, size_t size, bool island) {
     std::string name = getEthnicName(etnos);
 
     if (island) {
@@ -487,7 +487,7 @@ std::string getRegionName(const Ethnicity etnos, const int type, const int size,
     }
 }
 
-std::string getRiverName(const int size, const int min, const int max) {
+std::string getRiverName(int size, int min, int max) {
     std::string s = getAbstractName();
 
     int d = max - min;

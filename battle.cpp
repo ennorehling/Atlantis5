@@ -807,7 +807,8 @@ void Game::GetSides(
                 // Can't get building bonus in another region without EXTENDED_FORT_DEFENCE
                 if (i>=0 && !Globals->EXTENDED_FORT_DEFENCE) {
                     o->capacity = 0;
-                    o->shipno = o->ships.size();
+                    assert(o->ships.size() <= INT_MAX);
+                    o->shipno = (int)o->ships.size();
                     continue;
                 }
 

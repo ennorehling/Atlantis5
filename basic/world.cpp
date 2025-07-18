@@ -2021,7 +2021,8 @@ static int nregions;
 
 void SetupNames()
 {
-    nnames = regionnames.size();
+    assert(regionnames.size() <= INT_MAX);
+    nnames = (int) regionnames.size();
     nameused = new int[nnames];
 
     for (int i=0; i<nnames; i++) nameused[i] = 0;

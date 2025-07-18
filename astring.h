@@ -56,11 +56,11 @@ public:
 
 	char *Str();
 	const char *const_str() const;
-	int Len();
+	size_t Len();
 
 
 private:
-	int len;
+	size_t len;
 	char *str;
 	int isEqual(const char *) const;
 };

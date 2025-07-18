@@ -234,7 +234,8 @@ void ARegionList::MakeRegions(int level, int xSize, int ySize)
             if (!((x + y) % 2)) {
                 ARegion *reg = new ARegion;
                 reg->SetLoc(x, y, level);
-                reg->num = regions.size();
+                assert(regions.size() <= INT_MAX);
+                reg->num = (int) regions.size();
 
                 //
                 // Some initial values; these will get reset
@@ -329,7 +330,8 @@ void ARegionList::MakeIcosahedralRegions(int level, int xSize, int ySize)
 
                 ARegion *reg = new ARegion;
                 reg->SetLoc(x, y, level);
-                reg->num = regions.size();
+                assert(regions.size() <= INT_MAX);
+                reg->num = (int) regions.size();
 
                 //
                 // Some initial values; these will get reset

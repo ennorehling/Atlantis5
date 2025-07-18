@@ -1008,8 +1008,8 @@ void Army::Win(Battle * b, ItemList& spoils)
                         units.push_back(soldiers[x]->unit);
                     }
                 }
-
-                ns = units.size();
+                assert(units.size() <= INT_MAX);
+                ns = (int) units.size();
                 if (ItemDefs[i->type].type & IT_SHIP) {
                     int t = rng::get_random(ns);
                     Unit *u = units[t];
