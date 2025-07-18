@@ -162,11 +162,11 @@ int AString::isEqual(const char *temp2) const
 AString AString::operator+(const AString &s)
 {
 	char *temp = new char[len+s.len+1];
-	int i;
+	size_t i;
 	for (i=0; i<len; i++) {
 		temp[i] = str[i];
 	}
-	for (int j=0; j<s.len+1; j++) {
+	for (size_t j=0; j<s.len+1; j++) {
 		temp[i++] = s.str[j];
 	}
 	AString temp2 = AString(temp);
@@ -177,11 +177,11 @@ AString AString::operator+(const AString &s)
 AString &AString::operator+=(const AString &s)
 {
 	char *temp = new char[len+s.len+1];
-	int i;
+	size_t i;
 	for (i=0; i<len; i++) {
 		temp[i] = str[i];
 	}
-	for (int j=0; j<s.len+1; j++) {
+	for (size_t j=0; j<s.len+1; j++) {
 		temp[i++] = s.str[j];
 	}
 	delete[] str;
