@@ -796,9 +796,10 @@ void ARegionList::RandomTerrain(ARegionArray *pArr)
                 for (int d = 0; d < NDIRS; d++) {
                     ARegion *newregion = reg->neighbors[d];
                     if (!newregion) continue;
-                    if ((TerrainDefs[newregion->type].similar_type !=
-                                R_OCEAN) && (newregion->type != R_NUM) &&
-                            (newregion->wages > 0)) {
+                    if ((newregion->type != R_NUM)
+                        && (TerrainDefs[newregion->type].similar_type != R_OCEAN)
+                        && (newregion->wages > 0))
+                    {
                         adjtype = newregion->type;
                         adjname = newregion->wages;
                     }
