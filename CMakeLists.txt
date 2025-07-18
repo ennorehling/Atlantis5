@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.22)
 project(atlantis CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wsign-compare -Wall -Werror -Wno-switch -Wno-unknown-pragmas -Wstrict-prototypes -Wpointer-arith -Wno-char-subscripts -Wno-long-long)
+    # add_compile_options(-Wsign-compare -Wall -Werror -Wno-switch -Wno-unknown-pragmas -Wstrict-prototypes -Wpointer-arith -Wno-char-subscripts -Wno-long-long)
+    add_compile_options(-Wall -Werror -pedantic)
 elseif(MSVC)
     add_compile_options(/WX /MP /FC)
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG
