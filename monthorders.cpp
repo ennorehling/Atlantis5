@@ -1613,7 +1613,8 @@ Location *Game::DoAMoveOrder(Unit *unit, ARegion *region, Object *obj)
                 match++;
             }
             if (!candidates.empty()) {
-                int index = rng::get_random(candidates.size()); // Corrected namespace
+                assert(candidates.size() <= INT_MAX);
+                int index = rng::get_random((int) candidates.size()); // Corrected namespace
                 newreg = candidates[index];
             }
         }

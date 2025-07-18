@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 // START A3HEADER
 //
 // This source file is part of the Atlantis PBM game program.
@@ -202,7 +203,7 @@ const char *AString::const_str() const
 	return str;
 }
 
-int AString::Len()
+size_t AString::Len()
 {
 	return len;
 }

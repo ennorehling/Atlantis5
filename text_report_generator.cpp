@@ -219,7 +219,8 @@ void TextReportGenerator::output_item_list(ostream& f, const json& item_list, st
 
 void TextReportGenerator::output_ships(ostream& f, const json& ships) {
     if (ships.empty()) return;
-    int count = ships.size();
+    size_t count = ships.size();
+    assert(count < INT_MAX);
     bool comma = false;
     for (const auto& ship : ships) {
         if (comma) f << ", ";
@@ -307,8 +308,9 @@ void TextReportGenerator::output_unit_summary(ostream& f, const json& unit, bool
     // Readied items
     if (unit.contains("readied")) {
         if (unit["readied"].contains("weapons")) {
-            int count = unit["readied"]["weapons"].size();
-            f << ". Ready " << strings::plural(count, "weapon", "weapons") << ": ";
+            size_t count = unit["readied"]["weapons"].size();
+            assert(count < INT_MAX);
+            f << ". Ready " << strings::plural((int) count, "weapon", "weapons") << ": ";
             output_items(f, unit["readied"]["weapons"], true);
         }
         if (unit["readied"].contains("armor")) {
@@ -748,7 +750,7 @@ string TextReportGenerator::next_map_header_line(int line, const json& region) {
                     ? to_s(region["settlement"]["name"])
                     : terrain_fill.at(to_s(region["terrain"]))[line - y]
                 );
-                int len = min(value.length(), template_fill_size);
+                size_t len = min(value.length(), template_fill_size);
                 result.replace(x, len, value.substr(0, len));
             } else {
                 if (region.contains("exits")) {
@@ -761,7 +763,7 @@ string TextReportGenerator::next_map_header_line(int line, const json& region) {
                                 ? to_s(exit["region"]["settlement"]["name"])
                                 : terrain_fill.at(to_s(exit["region"]["terrain"]))[line - y]
                             );
-                            int len = min(value.length(), template_fill_size);
+                            size_t len = min(value.length(), template_fill_size);
                             result.replace(x, len, value.substr(0, len));
                         }
                     }

@@ -1946,7 +1946,7 @@ int Game::CountItem (Faction *fac, int item)
 {
     if (ItemDefs[item].type & IT_SHIP) return 0;
 
-    size_t all = 0;
+    int all = 0;
     for (const auto& r : fac->present_regions) {
         for(const auto obj : r->objects) {
             for(const auto unit : obj->units) {

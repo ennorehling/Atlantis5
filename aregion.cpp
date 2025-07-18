@@ -196,7 +196,7 @@ void ARegion::LairCheck()
         return;
     }
 
-    int lair = lairs[rng::get_random(lairs.size())];
+    int lair = lairs[rng::get_random((int) lairs.size())];
     MakeLair(lair);
 }
 
@@ -255,7 +255,7 @@ void ARegion::ManualSetup(const RegionSetup& settings) {
     if (Globals->LAIR_MONSTERS_EXIST && settings.addLair) {
         auto lairs = GetPossibleLairs();
         if (!lairs.empty()) {
-            int lair = lairs[rng::get_random(lairs.size())];
+            int lair = lairs[rng::get_random((int) lairs.size())];
             MakeLair(lair);
         }
     }
@@ -2001,7 +2001,7 @@ ARegion *ARegionList::FindGate(int x)
         }
         if(gates.empty()) return nullptr;
 
-        count = rng::get_random(gates.size());
+        count = rng::get_random((int)gates.size());
         return gates[count];
     }
     for(const auto r : regions) {
@@ -2630,7 +2630,7 @@ void makeRivers(
     for (size_t i = 0; i < sz; i++) {
         logger::write("Connecting water body " + std::to_string(i));
 
-        std::vector<std::pair<int, int>> candidates;
+        std::vector<std::pair<size_t, int>> candidates;
         WaterBody* source = waterBodies[i];
 
         for (size_t j = 0; j < sz; j++) {
@@ -2692,7 +2692,7 @@ void makeRivers(
 
                 graphs::Location2D riverStart;
                 graphs::Location2D riverEnd;
-                int riverCost = INT32_MAX;
+                int riverCost = INT_MAX;
 
                 for (const auto& start : source->regions) {
                     if (innerWater.find(start) != innerWater.end()) {
@@ -2703,17 +2703,17 @@ void makeRivers(
                     std::unordered_map<graphs::Location2D, double> costSoFar;
                     graphs::dijkstraSearch(graph, start, cameFrom, costSoFar);
 
-                    int smallestCost = INT32_MAX;
+                    int smallestCost = INT_MAX;
                     graphs::Location2D end;
                     for(const auto loc : target->regions) {
-                        int cost = costSoFar[loc];
+                        int cost = (int) costSoFar[loc];
                         if (cost > 0 && cost < smallestCost) {
                             end = loc;
                             smallestCost = cost;
                         }
                     }
 
-                    if (smallestCost == INT32_MAX) {
+                    if (smallestCost == INT_MAX) {
                         // path not found
                         continue;
                     }
@@ -2725,7 +2725,7 @@ void makeRivers(
                     }
                 }
 
-                if (riverCost == INT32_MAX) {
+                if (riverCost == INT_MAX) {
                     // path not found
                     logger::write("No path to " + std::to_string(target->name) + " found");
                     continue;
@@ -2748,7 +2748,7 @@ void makeRivers(
                     current = cameFrom[current];
                 }
 
-                int riverLen = path.size();
+                int riverLen = (int) path.size();
                 logger::write("River length is " + std::to_string(riverLen));
 
                 bool first = true;
@@ -2828,10 +2828,12 @@ void cleanupIsolatedPlaces(
                 reg->type = R_OCEAN;
 
                 if (!wb.empty()) {
-                    wb[rng::get_random(wb.size())]->add(reg);
+                    assert(wb.size() <= INT_MAX);
+                    wb[rng::get_random((int) wb.size())]->add(reg);
                 }
-                else  {
-                    rivers.insert(std::make_pair(reg, nearbyRivers[rng::get_random(nearbyRivers.size())]));
+                else {
+                    assert(nearbyRivers.size() <= INT_MAX);
+                    rivers.insert(std::make_pair(reg, nearbyRivers[rng::get_random((int) nearbyRivers.size())]));
                 }
             }
         }
@@ -2911,7 +2913,7 @@ std::vector<graphs::Location2D> getPoints(const int w, const int h,
     std::vector<graphs::Location2D> processing;
 
     int minDist = initialMinDist;
-    int cellSize = ceil(minDist / sqrt(2));
+    int cellSize = (int) ceil(minDist / sqrt(2));
 
     graphs::Location2D loc;
     do {
@@ -2923,7 +2925,8 @@ std::vector<graphs::Location2D> getPoints(const int w, const int h,
     processing.push_back(loc);
 
     while (!processing.empty()) {
-        int i = rng::get_random(processing.size());
+        assert(processing.size() <= INT_MAX);
+        int i = rng::get_random((int) processing.size());
         auto next = processing.at(i);
         processing.erase(processing.begin() + i);
 
@@ -2932,8 +2935,8 @@ std::vector<graphs::Location2D> getPoints(const int w, const int h,
             int r = rng::get_random(minDist) + minDist + 1;
             double a = rng::get_random(360) / 360.0 * 2 * M_PI;
 
-            int x = ceil(next.x + r * cos(a));
-            int y = ceil(next.y + r * sin(a));
+            int x = (int) ceil(next.x + r * cos(a));
+            int y = (int) ceil(next.y + r * sin(a));
 
             if (x > w) { x = x % w; }
             if (x < 0) { x += w; }
@@ -2980,7 +2983,7 @@ std::vector<graphs::Location2D> getPoints(const int w, const int h,
             }
 
             minDist = onPoint(candidate);
-            cellSize = ceil(minDist / sqrt(2));
+            cellSize = (int) ceil(minDist / sqrt(2));
 
             output.push_back(candidate);
             processing.push_back(candidate);
@@ -2999,19 +3002,22 @@ std::vector<graphs::Location2D> getPointsFromList(
     std::vector<graphs::Location2D> output;
     std::vector<graphs::Location2D> processing;
 
-    graphs::Location2D loc = points.at(rng::get_random(points.size()));
+    assert(points.size() <= INT_MAX);
+    int numPoints = (int) points.size();
+    graphs::Location2D loc = points.at(rng::get_random(numPoints));
 
     output.push_back(loc);
     processing.push_back(loc);
 
     while (!processing.empty()) {
-        int i = rng::get_random(processing.size());
+        assert(processing.size() <= INT_MAX);
+        int i = rng::get_random((int) processing.size());
         processing.erase(processing.begin() + i);
 
         int count = 0;
         while (count < newPointCount) {
             // a new point to check
-            graphs::Location2D candidate = points.at(rng::get_random(points.size()));
+            graphs::Location2D candidate = points.at(rng::get_random(numPoints));
             count++;
 
             // check against all valid points
@@ -3463,7 +3469,7 @@ void ARegionList::AddHistoricalBuildings(ARegionArray* arr, const int w, const i
                 }
 
                 int roll = rng::make_roll(reg->town->TownType() + 1, 6);
-                int count = ceil(roll / 6);
+                int count = (roll + 5) / 6;
                 int damage = 6 - roll % 6;
 
                 for (int i = 0; i < count; i++) {

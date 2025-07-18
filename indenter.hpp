@@ -140,13 +140,13 @@ namespace indent {
     std::streambuf *orig_buf;
     bool comment_on;
     bool suppress;
-    int_type line_indent;
+    size_t line_indent;
     size_t wrap;
     size_t lookback;
     size_t string_wrap_indent;
     std::string buffer;
     std::string prefix;
-    std::vector<int_type> line_indent_stack;
+    std::vector<size_t> line_indent_stack;
   };
 
   std::ostream &wrap(std::ostream &os);

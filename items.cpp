@@ -755,7 +755,7 @@ std::string item_description(int item, int full)
             }
 
             temp += " Monster severely dislikes " + strings::join(list, ",", " and ") + " " +
-                strings::plural(monster.forbiddenTerrain.size(), "terrain", "terrains") + " and will never try to enter them.";
+                strings::plural((int) monster.forbiddenTerrain.size(), "terrain", "terrains") + " and will never try to enter them.";
         }
 
         if (!monster.preferredTerrain.empty()) {
@@ -767,7 +767,7 @@ std::string item_description(int item, int full)
                 isNext = true;
             }
 
-            temp += " " + strings::plural(monster.preferredTerrain.size(), "terrain", "terrains") + ".";
+            temp += " " + strings::plural((int) monster.preferredTerrain.size(), "terrain", "terrains") + ".";
         }
 
         const int aggression = monster.getAggression();

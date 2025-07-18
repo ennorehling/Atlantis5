@@ -123,7 +123,7 @@ public:
     std::string report(int men);
     void Readin(std::istream& f);
     void Writeout(std::ostream& f);
-    inline int size() { return skills.size(); }
+    inline size_t size() { return skills.size(); }
     inline Skill *front() { return skills.front(); }
 
     inline iterator begin(){ return skills.begin(); }

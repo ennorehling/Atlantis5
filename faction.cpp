@@ -725,7 +725,7 @@ void Faction::DiscoverItem(int item, int force, int full)
 }
 
 int Faction::GetActivityCost(FactionActivity type) {
-    int count = 0;
+    size_t count = 0;
     for (auto &kv : this->activity) {
         auto regionActivity = kv.second;
 
@@ -745,8 +745,8 @@ int Faction::GetActivityCost(FactionActivity type) {
             }
         }
     }
-
-    return count;
+    assert(count <= INT_MAX);
+    return (int) count;
 }
 
 void Faction::RecordActivity(ARegion *region, FactionActivity type) {

@@ -338,7 +338,8 @@ std::string Events::Write(std::string worldName, std::string month, int year) {
 
         int n = std::min((int) list.size(), rng::get_random(3) + 3);
         while (n-- > 0) {
-            int i = rng::get_random(list.size());
+            assert(list.size() <= INT_MAX);
+            int i = rng::get_random((int) list.size());
 
             if (lines.size() > 0) {
                 lines.push_back("");

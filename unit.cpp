@@ -875,7 +875,8 @@ void Unit::DefaultOrders(Object *obj)
 
             // pick a direction where to move
             // it will be uniform selection of all possible directions, better than previos alogrithm
-            int dirIndex = rng::get_random(directions.size());
+            assert(directions.size() <= INT_MAX);
+            int dirIndex = rng::get_random((int)directions.size());
             int dir = directions[dirIndex];
 
             if (dir >= 0) {

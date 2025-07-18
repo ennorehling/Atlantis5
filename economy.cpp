@@ -765,7 +765,7 @@ void ARegion::SetupProds(double weight)
 
     for (unsigned int c= 0; c < (sizeof(typer->prods)/sizeof(typer->prods[0])); c++) {
         int item = typer->prods[c].product;
-        int chance = typer->prods[c].chance * weight;
+        double chance = typer->prods[c].chance * weight;
         int amt = typer->prods[c].amount;
         if (item != -1) {
             if (!(ItemDefs[item].flags & ItemType::DISABLED) &&
@@ -1344,8 +1344,8 @@ void ARegion::Grow()
         //      also, is (2 * town->hab - town->pop) correct?
         //      it's not meant to be 2 * (town->hab - town->pop)?
         //      ((2 * town->hab) - town->pop) seems clearer
-        float increase = tgrowth * (2 * town->hab - town->pop);
-        float limitingfactor = (10 * town->hab);
+        double increase = tgrowth * (2.0 * town->hab - town->pop);
+        double limitingfactor = (10.0 * town->hab);
 
         // Ant: Not sure whether we still need the typecasts here
         growpop += (int) (increase / limitingfactor);
@@ -1500,8 +1500,8 @@ void ARegion::PostTurn()
 
     /* Development increase due to player activity */
     // scale improvement
-    float imp1 = improvement / 25;
-    int imp2 = (improvement * 2 + 15) / 3;
+    double imp1 = improvement / 25.0;
+    double imp2 = (improvement * 2.0 + 15) / 3;
     improvement = (int) (imp1 * imp2);
     // development increase possible?
     if (improvement > development) {

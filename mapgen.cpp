@@ -310,7 +310,7 @@ void simulateRain(CellMap& map, Cell* target, double windAngle, const Edge* wind
                 continue;
             }
 
-            int distance = sqrt(dx * dx + dy * dy);
+            int distance = (int) sqrt(dx * dx + dy * dy);
             if (distance > RANGE) {
                 continue;
             }
@@ -409,7 +409,7 @@ void Map::Generate() {
 
         double e = pow((noise->cylinderFractal(3, nx, ny) + 1.0) / 2.0, redistribution);
 
-        cell->elevation = round(e * ELEVATION);
+        cell->elevation = (int) round(e * ELEVATION);
         minElevation = std::min(minElevation, cell->elevation);
         maxElevation = std::max(maxElevation, cell->elevation);
 
@@ -419,11 +419,11 @@ void Map::Generate() {
     // 1. determine sea level
     logger::write("1. determine sea level");
 
-    int maxWaterCells = len * waterPercent;
+    int maxWaterCells = (int) (len * waterPercent);
     int waterCells = 0;
     int seaLevel = minElevation;
 
-    int maxMountainCells = len * mountainPercent;
+    int maxMountainCells = (int) (len * mountainPercent);
     int mountainCells = 0;
     int mountainLevel = maxElevation;
 
@@ -477,12 +477,12 @@ void Map::Generate() {
         int tempElevation = isWater ? 0 : item->elevation;
 
 
-        item->temperature = round(temperature(minTemp, maxTemp, degToRad(/* 23.5 */ 0), degToRad(lat), tempElevation));
+        item->temperature = (int) round(temperature(minTemp, maxTemp, degToRad(/* 23.5 */ 0), degToRad(lat), tempElevation));
         item->temperature = std::min(MAX_TEMP, std::max(MIN_TEMP, item->temperature));
-        item->saturation = round(saturation(item->temperature));
+        item->saturation = (int)round(saturation(item->temperature));
 
         if (isWater) {
-            item->evoparation = round(pow(item->saturation, evoparation));
+            item->evoparation = (int)round(pow(item->saturation, evoparation));
         }
         else {
             item->evoparation = 0;
