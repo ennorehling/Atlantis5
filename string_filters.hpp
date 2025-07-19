@@ -136,7 +136,7 @@ inline constexpr lowercase_t lowercase{};
  */
 struct canonicalize_t {
     std::string process(const std::string& str) const {
-#ifdef WITHOUT_VIEWS
+#ifndef WITHOUT_VIEWS
         /** FIXME: gcc 11 doesn't like the range solution, ergo this hack */
         std::vector<std::string> words;
         std::istringstream f(str);
@@ -149,11 +149,9 @@ struct canonicalize_t {
             if (!s.empty()) {
                 s.append(1, '_');
             }
-            // s += w | capitalize;
-            s.append(1, (char) std::toupper(w[0]));
-            s.append(w.begin() + 1, w.end());
+            s += w | capitalize;
         }
-        return str; // WRONG!
+        return str;
 #else
         auto parts_view = str
             | std::views::split(std::string_view{" "}) // Split by space
