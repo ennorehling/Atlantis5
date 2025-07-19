@@ -269,63 +269,63 @@ class ARegion
 
         std::string name;
         int num;
-        int type;
-        int buildingseq;
+        int type = -1;
+        int buildingseq = 1;
         int weather;
-        int gate;
-        int gatemonth;
-        int gateopen;
+        int gate = 0;
+        int gatemonth = 0;
+        int gateopen = 1;
 
-        TownInfo *town;
-        int race;
+        TownInfo *town = nullptr;
+        int race = -1;
         int population;
         int basepopulation;
-        int wages;
+        int wages = -1;
         int maxwages;
         int wealth;
 
         /* Economy */
-        int habitat;
-        int development;
-        int maxdevelopment;
-        int elevation;
-        int humidity;
-        int temperature;
-        int vegetation;
-        int culture;
+        int habitat = 0;
+        int development = 0;
+        int maxdevelopment = 0;
+        int elevation = 0;
+        int humidity = 0;
+        int temperature = 0;
+        int vegetation = 0;
+        int culture = 0;
         // migration origins
         std::list<ARegion *> migfrom;
         // mid-way migration development
-        int migdev;
-        int immigrants;
-        int emigrants;
+        int migdev = 0;
+        int immigrants = 0;
+        int emigrants = 0;
         // economic improvement
-        int improvement;
+        int improvement = 0;
 
         /* Potential bonuses to economy */
-        int clearskies;
-        int earthlore;
-        int phantasmal_entertainment;
+        int clearskies = 0;
+        int earthlore = 0;
+        int phantasmal_entertainment = 0;
 
-        ARegion *neighbors[NDIRS];
+        ARegion *neighbors[NDIRS] = { nullptr };
         safe::list<Object *> objects;
         std::map<int,int> newfleets;
-        int fleetalias;
+        int fleetalias = 1;
         std::list<Unit *> hell; /* Where dead units go */
         std::list<Farsight *> farsees;
         // List of units which passed through the region
         std::list<Farsight *>passers;
         std::vector<Production *> products;
         std::vector<Market*> markets;
-        int xloc, yloc, zloc;
-        int visited;
+        int xloc = 0, yloc = 0, zloc = 0;
+        int visited = 0;
 
         // Used for calculating distances using an A* search
-        int distance;
-        ARegion *next;
+        int distance = 0;
+        ARegion *next = nullptr;
 
         // A link to the region's level to make some things easier.
-        ARegionArray *level;
+        ARegionArray *level = nullptr;
 
         // find a production for a certain skill.
         Production *get_production_for_skill(int item, int skill);

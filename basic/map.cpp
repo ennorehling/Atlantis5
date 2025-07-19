@@ -237,13 +237,6 @@ void ARegionList::MakeRegions(int level, int xSize, int ySize)
                 assert(regions.size() <= INT_MAX);
                 reg->num = (int) regions.size();
 
-                //
-                // Some initial values; these will get reset
-                //
-                reg->type = -1;
-                reg->race = -1;
-                reg->wages = -1;
-
                 reg->level = arr;
                 regions.push_back(reg);
                 arr->SetRegion(x, y, reg);
