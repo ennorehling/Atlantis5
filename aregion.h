@@ -278,17 +278,17 @@ class ARegion
 
         TownInfo *town = nullptr;
         int race = -1;
-        int population;
-        int basepopulation;
+        int population = -1;
+        int basepopulation = 0;
         int wages = -1;
-        int maxwages;
-        int wealth;
+        int maxwages = 0;
+        int wealth = 0;
 
         /* Economy */
         int habitat = 0;
         int development = 0;
         int maxdevelopment = 0;
-        int elevation = 0;
+        int elevation = -1;
         int humidity = 0;
         int temperature = 0;
         int vegetation = 0;
