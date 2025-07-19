@@ -1,20 +1,30 @@
 #pragma once
 #ifndef STRING_FILTERS_HPP
 #define STRING_FILTERS_HPP
+#ifndef WITHOUT_VIEWS
+#ifdef __GNUC__
+#if __GNUC_PREREQ(12,0)
+#else
+#define WITHOUT_VIEWS
+#endif
+#endif
+#endif
+#include "strings_util.hpp"
 
-#include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstring>
 #include <iterator>
+#include <string>
 #include <unordered_set>
 #include <vector>
-#include <ranges>
 #include <string_view>
-#include "strings_util.hpp"
+#ifdef WITHOUT_VIEWS
 #include <sstream>
 #include <iostream>
-
+#else
+#include <ranges>
+#endif
 namespace filter {
 
 /**
@@ -126,21 +136,8 @@ inline constexpr lowercase_t lowercase{};
  */
 struct canonicalize_t {
     std::string process(const std::string& str) const {
-#ifdef _MSC_VER
-        auto parts_view = str
-            | std::views::split(std::string_view{" "}) // Split by space
-            | std::views::transform([](auto&& subrange) {
-                std::string str = std::string(subrange.begin(), subrange.end());
-                return str | capitalize;
-            });
-
-        std::vector<std::string> processed_words;
-        // Efficiently copy the view elements into the vector
-        std::ranges::copy(parts_view, std::back_inserter(processed_words));
-        // Join the processed words with an underscore
-        return strings::join(processed_words, "_");
-#else
-        /** FIXME: gcc doesn't like the range solution, ergo this hack */
+#ifdef WITHOUT_VIEWS
+        /** FIXME: gcc 11 doesn't like the range solution, ergo this hack */
         std::vector<std::string> words;
         std::istringstream f(str);
         std::string s;
@@ -157,6 +154,19 @@ struct canonicalize_t {
             s.append(w.begin() + 1, w.end());
         }
         return str; // WRONG!
+#else
+        auto parts_view = str
+            | std::views::split(std::string_view{" "}) // Split by space
+            | std::views::transform([](auto&& subrange) {
+                std::string str = std::string(subrange.begin(), subrange.end());
+                return str | capitalize;
+            });
+
+        std::vector<std::string> processed_words;
+        // Efficiently copy the view elements into the vector
+        std::ranges::copy(parts_view, std::back_inserter(processed_words));
+        // Join the processed words with an underscore
+        return strings::join(processed_words, "_");
 #endif
     }
 
