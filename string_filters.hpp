@@ -133,7 +133,7 @@ inline constexpr lowercase_t lowercase{};
  */
 struct canonicalize_t {
     std::string process(const std::string& str) const {
-#ifndef WITHOUT_VIEWS
+#ifdef WITHOUT_VIEWS
         /** FIXME: gcc 11 doesn't like the range solution, ergo this hack */
         std::vector<std::string> words;
         std::istringstream f(str);
