@@ -83,25 +83,8 @@ void TownInfo::Writeout(std::ostream& f)
 ARegion::ARegion()
 {
     name = "Region";
-    xloc = 0;
-    yloc = 0;
-    buildingseq = 1;
-    gate = 0;
-    gatemonth = 0;
-    gateopen = 1;
-    town = 0;
-    development = 0;
-    maxdevelopment = 0;
-    habitat = 0;
-    immigrants = 0;
-    emigrants = 0;
-    improvement = 0;
-    clearskies = 0;
-    earthlore = 0;
-    phantasmal_entertainment = 0;
     for (int i=0; i<NDIRS; i++)
         neighbors[i] = 0;
-    visited = 0;
 }
 
 ARegion::~ARegion()
