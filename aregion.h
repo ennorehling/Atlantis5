@@ -364,9 +364,9 @@ class ARegionArray
 
         std::vector<ARegion *> get_starting_region_candidates(int terrain);
 
-        int x;
-        int y;
-        ARegion **regions;
+        int x = 0;
+        int y = 0;
+        ARegion **regions = nullptr;
         std::string strName;
 
         enum {
@@ -375,7 +375,7 @@ class ARegionArray
             LEVEL_UNDERWORLD,
             LEVEL_UNDERDEEP,
         };
-        int levelType;
+        int levelType = LEVEL_SURFACE;
 };
 
 class ARegionFlatArray

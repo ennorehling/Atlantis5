@@ -1596,7 +1596,7 @@ ARegionList::~ARegionList()
             delete pRegionArrays[i];
         }
 
-        delete pRegionArrays;
+        delete [] pRegionArrays;
     }
     std::for_each(regions.begin(), regions.end(), [](ARegion *r) { delete r; });
     regions.clear();
@@ -2296,7 +2296,7 @@ ARegionArray::ARegionArray(int xx, int yy)
     strName = "";
 
     int i;
-    for (i = 0; i < x * y / 2; i++) regions[i] = 0;
+    for (i = 0; i < x * y / 2; i++) regions[i] = nullptr;
 }
 
 ARegionArray::~ARegionArray()
