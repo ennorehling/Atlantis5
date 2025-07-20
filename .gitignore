@@ -38,5 +38,4 @@ map_viewer/dist
 .gdb_history
 !*.[ch]pp
 /out/
-/build/
 /.vs
