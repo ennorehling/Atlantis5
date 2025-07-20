@@ -66,7 +66,6 @@ target_link_libraries(${GAME} engine)
 target_include_directories(${GAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 endmacro()
 
-add_game(unittest)
 add_game(basic)
 add_game(fracas)
 add_game(havilah)
