@@ -501,13 +501,13 @@ class ARegionList
         int GetLevelYScale(int level);
 
         void AddHistoricalBuildings(ARegionArray* arr, const int w, const int h);
+        void MakeRegions(int level, int xSize, int ySize);
+        void SetupNeighbors(ARegionArray *pRegs);
 
     private:
         //
         // Private world creation stuff
         //
-        void MakeRegions(int level, int xSize, int ySize);
-        void SetupNeighbors(ARegionArray *pRegs);
         void NeighSetup(ARegion *r, ARegionArray *ar);
         void MakeIcosahedralRegions(int level, int xSize, int ySize);
         void SetupIcosahedralNeighbors(ARegionArray *pRegs);

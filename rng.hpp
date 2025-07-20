@@ -2,11 +2,12 @@
 #ifndef _RNG_HPP
 #define _RNG_HPP
 
+#include <cassert>
+#include <climits>
 #include <random>
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <limits>
 #include <algorithm>
 #include <optional>
 #include <type_traits>
@@ -151,6 +152,13 @@ inline std::optional<size_t> get_weighted_index(const WeightContainer& weights) 
 
     std::discrete_distribution<size_t> distribution(std::ranges::begin(weights), std::ranges::end(weights));
     return distribution(detail::get_initialized_generator());
+}
+
+template <typename T>
+inline int clamp(T value, int high = INT_MAX, int low = INT_MIN) {
+    assert(value <= high);
+    assert(low <= (int)value);
+    return (int) value;
 }
 
 } // namespace rng

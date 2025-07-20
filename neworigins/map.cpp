@@ -253,8 +253,7 @@ int Province::GetLatitude() {
 }
 
 int Province::GetSize() {
-    assert(this->regions.size() <= INT_MAX);
-    return (int) this->regions.size();
+    return rng::clamp(this->regions.size());
 }
 
 void Province::AddRegion(ZoneRegion* region) {
@@ -287,7 +286,7 @@ bool Province::Grow() {
 
     if (candidates.size() == 0) return false;
 
-    ZoneRegion* next = candidates[rng::get_random(candidates.size())];
+    ZoneRegion* next = candidates[rng::get_random(rng::clamp(candidates.size()))];
     int connections = next->CountNeighbors(this);
 
     // 2d6
@@ -342,7 +341,7 @@ Zone::~Zone() {
 
 Province* Zone::CreateProvince(ZoneRegion* region, int h) {
     Province* province = new Province;
-    province->id = this->provinces.size();
+    province->id = rng::clamp(this->provinces.size());
     province->zone = this;
     province->h = h;
     province->biome = -1;
@@ -732,7 +731,7 @@ void MapBuilder::GrowZones() {
             }
 
             // select one region to grow
-            ZoneRegion* next = nextRegions[rng::get_random(nextRegions.size())];
+            ZoneRegion* next = nextRegions[rng::get_random(rng::clamp(nextRegions.size()))];
             int connections = 0;
             for (auto &n : next->neighbors) {
                 if (n != NULL && n->zone == zone) {
@@ -898,7 +897,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
     std::vector<Zone *> cores;
     attempts = 0;
     while (attempts++ < 1000 && cores.size() != continents) {
-        Zone* candidate = this->zones[rng::get_random(this->zones.size())];
+        Zone* candidate = this->zones[rng::get_random(rng::clamp(this->zones.size()))];
 
         for (auto &core : cores) {
             if (core == candidate || core->AtBorderWith(candidate)
@@ -914,7 +913,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
         }
     }
 
-    int coveredArea = 0;
+    size_t coveredArea = 0;
     std::vector<Zone *> S;
     for (auto &zone : cores) {
         zone->type = ZoneType::CONTINENT;
@@ -926,7 +925,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
     attempts = 0;
     std::vector<Zone *> next;
     while (attempts++ < 10000 && coveredArea <= maxArea && S.size() > 0) {
-        int i = rng::get_random(S.size());
+        int i = rng::get_random(rng::clamp(S.size()));
         Zone* zone = S[i];
 
         if (zone->regions.size() > maxContinentArea) {
@@ -946,7 +945,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
             continue;
         }
 
-        Zone* target = next[rng::get_random(next.size())];
+        Zone* target = next[rng::get_random(rng::clamp(next.size()))];
 
         coveredArea += target->regions.size();
         MergeZoneInto(target, zone);
@@ -1035,7 +1034,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
     ClearEmptyZones();
 
     logger::write("Grow oceans");
-    int oceanCores = std::max(1, (int) oceans.size() / 4);
+    int oceanCores = std::max(1, rng::clamp(oceans.size() / 4));
 
     rng::shuffle(oceans);
 
@@ -1046,7 +1045,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
 
     attempts = 0;
     while (oceans.size() > 0) {
-        int i = rng::get_random(oceans.size());
+        int i = rng::get_random(rng::clamp(oceans.size()));
         Zone* ocean = oceans[i];
 
         std::vector<Zone *> next;
@@ -1058,7 +1057,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
         }
 
         if (next.size() > 0) {
-            MergeZoneInto(next[rng::get_random(next.size())], ocean);
+            MergeZoneInto(next[rng::get_random(rng::clamp(next.size()))], ocean);
         }
         else {
             oceans.erase(oceans.begin() + i);
@@ -1074,7 +1073,7 @@ void MapBuilder::SpecializeZones(size_t continents, int continentAreaFraction) {
     std::stack<Zone *> toCleanUp;
     for (auto &kv : this->zones) {
         auto zone = kv.second;
-        int size = zone->regions.size();
+        size_t size = zone->regions.size();
 
         switch (zone->type) {
             case ZoneType::CONTINENT:
@@ -1198,7 +1197,7 @@ void MapBuilder::AddVolcanoes() {
     logger::write("Adding volcanoes");
     // volcanos will be added anywhere
 
-    size_t count = rng::make_roll(1, this->volcanoesMax - this->volcanoesMin) + this->volcanoesMin;
+    int count = rng::make_roll(1, this->volcanoesMax - this->volcanoesMin) + this->volcanoesMin;
     int distance = (std::min(this->w, this->h / 2) * 2) / count + 2;
 
     int cols = count / rng::make_roll(1, 4) + 1;
@@ -1395,7 +1394,7 @@ void MapBuilder::GrowLandInZone(Zone* zone) {
     std::vector<ZoneRegion *> S;
     int attempts = 0;
     while (attempts++ < 1000 && S.size() < provinceCount) {
-        ZoneRegion* next = candidates[rng::get_random(candidates.size())];
+        ZoneRegion* next = candidates[rng::get_random(rng::clamp(candidates.size()))];
 
         for (auto &seed : S) {
             if (seed->location.Distance(next->location) < 3) {
@@ -1420,7 +1419,7 @@ void MapBuilder::GrowLandInZone(Zone* zone) {
     if (zone->provinces.size() < 2) {
         attempts = 0;
         while (attempts++ < 1000) {
-            ZoneRegion* next = candidates[rng::get_random(candidates.size())];
+            ZoneRegion* next = candidates[rng::get_random(rng::clamp(candidates.size()))];
             if (next->province != NULL) continue;
 
             provinces.push_back(zone->CreateProvince(next, this->h));
@@ -1430,7 +1429,7 @@ void MapBuilder::GrowLandInZone(Zone* zone) {
 
     // grow all provinces in random order
     while (provinces.size() > 0) {
-        int i = rng::get_random(provinces.size());
+        int i = rng::get_random(rng::clamp(provinces.size()));
         auto p = provinces[i];
         size_t size = p->GetSize();
 
@@ -1450,7 +1449,7 @@ void MapBuilder::GrowLandInZone(Zone* zone) {
     }
 
     while (provinces.size() > 0) {
-        int i = rng::get_random(provinces.size());
+        int i = rng::get_random(rng::clamp(provinces.size()));
         auto p = provinces[i];
 
         if (!p->Grow()) {
@@ -1509,7 +1508,7 @@ void MapBuilder::GrowLandInZone(Zone* zone) {
         std::vector<int> weights;
         weights.resize(biomeCount);
         int w = 0;
-        switch ((int) biomes.size()) {
+        switch (biomes.size()) {
             // biomes = 0, all weights are equal
             case 0:
                 for (int i = 0; i < biomeCount; i++) {
@@ -1918,49 +1917,6 @@ void ARegionList::create_underdeep_level(int level, int xSize, int ySize, const 
     FinalSetup(pRegionArrays[level]);
 }
 
-void ARegionList::MakeRegions(int level, int xSize, int ySize)
-{
-    logger::write("Making a level...");
-
-    ARegionArray *arr = new ARegionArray(xSize, ySize);
-    pRegionArrays[level] = arr;
-
-    //
-    // Make the regions themselves
-    //
-    int x, y;
-    for (y = 0; y < ySize; y++) {
-        for (x = 0; x < xSize; x++) {
-            if (!((x + y) % 2)) {
-                ARegion *reg = new ARegion;
-                reg->SetLoc(x, y, level);
-                assert(regions.size() <= INT_MAX);
-                reg->num = (int)regions.size();
-
-                reg->level = arr;
-                regions.push_back(reg);
-                arr->SetRegion(x, y, reg);
-            }
-        }
-    }
-
-    SetupNeighbors(arr);
-
-    logger::write("");
-}
-
-void ARegionList::SetupNeighbors(ARegionArray *pRegs)
-{
-    int x, y;
-    for (x = 0; x < pRegs->x; x++) {
-        for (y = 0; y < pRegs->y; y++) {
-            ARegion *reg = pRegs->GetRegion(x, y);
-            if (!reg) continue;
-            NeighSetup(reg, pRegs);
-        }
-    }
-}
-
 void ARegionList::MakeIcosahedralRegions(int level, int xSize, int ySize)
 {
     int scale, x2, y2;
@@ -2023,8 +1979,7 @@ void ARegionList::MakeIcosahedralRegions(int level, int xSize, int ySize)
 
                 ARegion *reg = new ARegion;
                 reg->SetLoc(x, y, level);
-                assert(regions.size() <= INT_MAX);
-                reg->num = (int)regions.size();
+                reg->num = rng::clamp(regions.size());
 
                 regions.push_back(reg);
                 arr->SetRegion(x, y, reg);
@@ -2884,7 +2839,7 @@ void ARegionList::SetACNeighbors(int levelSrc, int levelTo, int maxX, int maxY)
                     }
                     logger::write("Found " + std::to_string(candidates[type].size()) + " candidates for " +
                         TerrainDefs[type].name + " gateway");
-                    int index = rng::get_random(candidates[type].size());
+                    int index = rng::get_random(rng::clamp(candidates[type].size()));
                     ARegion *dest = candidates[type][index];
                     ARegion *best = dest;
                     int tries = 50;
@@ -2903,7 +2858,7 @@ void ARegionList::SetACNeighbors(int levelSrc, int levelTo, int maxX, int maxY)
                             best = dest;
                         }
                         // too close, try again
-                        index = rng::get_random(candidates[type].size());
+                        index = rng::get_random(rng::clamp(candidates[type].size()));
                         dest = candidates[type][index];
                     }
                     // store the best we have so far

@@ -339,49 +339,6 @@ void ARegionList::create_underdeep_level(int level, int xSize, int ySize, const 
     FinalSetup(pRegionArrays[level]);
 }
 
-void ARegionList::MakeRegions(int level, int xSize, int ySize)
-{
-    logger::write("Making a level...");
-
-    ARegionArray *arr = new ARegionArray(xSize, ySize);
-    pRegionArrays[level] = arr;
-
-    //
-    // Make the regions themselves
-    //
-    int x, y;
-    for (y = 0; y < ySize; y++) {
-        for (x = 0; x < xSize; x++) {
-            if (!((x + y) % 2)) {
-                ARegion *reg = new ARegion;
-                reg->SetLoc(x, y, level);
-                assert(regions.size() <= INT_MAX);
-                reg->num = (int)regions.size();
-
-                reg->level = arr;
-                regions.push_back(reg);
-                arr->SetRegion(x, y, reg);
-            }
-        }
-    }
-
-    SetupNeighbors(arr);
-
-    logger::write("");
-}
-
-void ARegionList::SetupNeighbors(ARegionArray *pRegs)
-{
-    int x, y;
-    for (x = 0; x < pRegs->x; x++) {
-        for (y = 0; y < pRegs->y; y++) {
-            ARegion *reg = pRegs->GetRegion(x, y);
-            if (!reg) continue;
-            NeighSetup(reg, pRegs);
-        }
-    }
-}
-
 void ARegionList::MakeIcosahedralRegions(int level, int xSize, int ySize)
 {
     int scale, x2, y2;
@@ -699,7 +656,7 @@ void ARegionList::MakeLand(ARegionArray *pRegs, int percentOcean,
         int dir;
         for (int i=0; i<sz; i++) {
             int dr = rng::get_random(NDIRS);
-            int maxe1, d1 = -1;
+            int maxe1 = 0, d1 = -1;
             for (int d=0; d<NDIRS; d++) {
                 dir = dr + d;
                 while (dir >= NDIRS) dir -= NDIRS;
@@ -866,8 +823,8 @@ void ARegionList::SetRegTypes(ARegionArray *pRegs, int newType)
 void ARegionList::RescaleFractalParameters(ARegionArray *pArr)
 {
     logger::write("Rescaling fractal parameters...");
-    int elev_min, humi_min, vege_min, cult_min = 100;
-    int elev_max, humi_max, vege_max, cult_max = 0;
+    int elev_min = INT_MAX, humi_min = INT_MAX, vege_min = INT_MAX, cult_min = 100;
+    int elev_max = 0, humi_max = 0, vege_max = 0, cult_max = 0;
     for (int x = 0; x < pArr->x; x++) {
         for (int y = 0; y < pArr->y; y++) {
             ARegion *reg = pArr->GetRegion(x, y);
@@ -1092,17 +1049,17 @@ void ARegionList::NameRegions(ARegionArray *pArr)
                     if ((nc1 > 0) || (nc2 > 0)) {
                         if (nw1 > nw2) {
                             reg->wages = name1;
-                            float npop = (nc1 * (nw1 + nc1 + nn) / (nc1 + 1 + nn))
+                            int npop = (nc1 * (nw1 + nc1 + nn) / (nc1 + 1 + nn))
                                 + nn + (nc1 - 1);
                             if (npop > (nw1 / nc1)) npop = nw1 / nc1;
-                            reg->population = (int) npop;
+                            reg->population = npop;
                             named_a_reg = 1;
                         } else {
                             reg->wages = name2;
-                            float npop = (nc2 * (nw2 + nc2) / (nc2 + 1 + nn))
+                            int npop = (nc2 * (nw2 + nc2) / (nc2 + 1 + nn))
                                 + nn + (nc2 - 1);
                             if (npop > (nw2 / nc2)) npop = nw2 / nc2;
-                            reg->population = (int) npop;
+                            reg->population = npop;
                             named_a_reg = 1;
                         }
                     }
