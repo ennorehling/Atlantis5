@@ -179,7 +179,7 @@ void ARegion::LairCheck()
         return;
     }
 
-    int lair = lairs[rng::get_random((int) lairs.size())];
+    int lair = lairs[rng::get_random(rng::clamp(lairs.size()))];
     MakeLair(lair);
 }
 
@@ -238,7 +238,7 @@ void ARegion::ManualSetup(const RegionSetup& settings) {
     if (Globals->LAIR_MONSTERS_EXIST && settings.addLair) {
         auto lairs = GetPossibleLairs();
         if (!lairs.empty()) {
-            int lair = lairs[rng::get_random((int) lairs.size())];
+            int lair = lairs[rng::get_random(rng::clamp(lairs.size()))];
             MakeLair(lair);
         }
     }
@@ -1984,7 +1984,7 @@ ARegion *ARegionList::FindGate(int x)
         }
         if(gates.empty()) return nullptr;
 
-        count = rng::get_random((int)gates.size());
+        count = rng::get_random(rng::clamp(gates.size()));
         return gates[count];
     }
     for(const auto r : regions) {
@@ -2627,7 +2627,7 @@ void makeRivers(
             }
         }
 
-        int numConnections = std::min(rng::make_roll(3, 4), (int) candidates.size());
+        int numConnections = std::min(rng::make_roll(3, 4), rng::clamp(candidates.size()));
         logger::write("There will be " + std::to_string(numConnections) + " rivers");
 
         if (numConnections > 0) {
@@ -2731,7 +2731,7 @@ void makeRivers(
                     current = cameFrom[current];
                 }
 
-                int riverLen = (int) path.size();
+                int riverLen = rng::clamp(path.size());
                 logger::write("River length is " + std::to_string(riverLen));
 
                 bool first = true;
@@ -2811,12 +2811,10 @@ void cleanupIsolatedPlaces(
                 reg->type = R_OCEAN;
 
                 if (!wb.empty()) {
-                    assert(wb.size() <= INT_MAX);
-                    wb[rng::get_random((int) wb.size())]->add(reg);
+                    wb[rng::get_random(rng::clamp(wb.size()))]->add(reg);
                 }
                 else {
-                    assert(nearbyRivers.size() <= INT_MAX);
-                    rivers.insert(std::make_pair(reg, nearbyRivers[rng::get_random((int) nearbyRivers.size())]));
+                    rivers.insert(std::make_pair(reg, nearbyRivers[rng::get_random(rng::clamp(nearbyRivers.size()))]));
                 }
             }
         }
@@ -2908,8 +2906,7 @@ std::vector<graphs::Location2D> getPoints(const int w, const int h,
     processing.push_back(loc);
 
     while (!processing.empty()) {
-        assert(processing.size() <= INT_MAX);
-        int i = rng::get_random((int) processing.size());
+        int i = rng::get_random(rng::clamp(processing.size()));
         auto next = processing.at(i);
         processing.erase(processing.begin() + i);
 
@@ -2985,16 +2982,14 @@ std::vector<graphs::Location2D> getPointsFromList(
     std::vector<graphs::Location2D> output;
     std::vector<graphs::Location2D> processing;
 
-    assert(points.size() <= INT_MAX);
-    int numPoints = (int) points.size();
+    int numPoints = rng::clamp(points.size());
     graphs::Location2D loc = points.at(rng::get_random(numPoints));
 
     output.push_back(loc);
     processing.push_back(loc);
 
     while (!processing.empty()) {
-        assert(processing.size() <= INT_MAX);
-        int i = rng::get_random((int) processing.size());
+        int i = rng::get_random(rng::clamp(processing.size()));
         processing.erase(processing.begin() + i);
 
         int count = 0;
@@ -3416,7 +3411,8 @@ void addAncientStructure(ARegion* reg, int type, double damage, std::optional<st
     reg->objects.push_back(obj);
 }
 
-void ARegionList::AddHistoricalBuildings(ARegionArray* arr, const int w, const int h) {
+void ARegionList::AddHistoricalBuildings(ARegionArray* arr, const int w, const int h)
+{
     std::vector<ARegion*> cities;
 
     for (int x = 0; x < w; x++) {
@@ -3625,6 +3621,50 @@ void ARegionList::AddHistoricalBuildings(ARegionArray* arr, const int w, const i
 
                 endReg = current;
             }
+        }
+    }
+}
+
+void ARegionList::MakeRegions(int level, int xSize, int ySize)
+{
+    logger::write("Making a level...");
+
+    ARegionArray *arr = new ARegionArray(xSize, ySize);
+    pRegionArrays[level] = arr;
+
+    //
+    // Make the regions themselves
+    //
+    int x, y;
+    for (y = 0; y < ySize; y++) {
+        for (x = 0; x < xSize; x++) {
+            if (!((x + y) % 2)) {
+                ARegion *reg = new ARegion;
+                reg->SetLoc(x, y, level);
+                assert(regions.size() <= INT_MAX);
+                reg->num = (int)regions.size();
+
+                reg->level = arr;
+                regions.push_back(reg);
+                arr->SetRegion(x, y, reg);
+                logger::dot();
+            }
+        }
+    }
+
+    SetupNeighbors(arr);
+
+    logger::write("");
+}
+
+void ARegionList::SetupNeighbors(ARegionArray *pRegs)
+{
+    int x, y;
+    for (x = 0; x < pRegs->x; x++) {
+        for (y = 0; y < pRegs->y; y++) {
+            ARegion *reg = pRegs->GetRegion(x, y);
+            if (!reg) continue;
+            NeighSetup(reg, pRegs);
         }
     }
 }
