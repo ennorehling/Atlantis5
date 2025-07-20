@@ -1275,7 +1275,7 @@ const WeaponBonusMalus* GetWeaponBonusMalus(const WeaponType& attacker, const We
         const WeaponBonusMalus *bm = &attacker.bonusMalus[i];
         if (!bm->weaponAbbr) continue;
 
-        if (AString(bm->weaponAbbr) == target.abbr) {
+        if (std::string(bm->weaponAbbr) == target.abbr) {
             return bm;
         }
     }

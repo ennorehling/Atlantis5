@@ -19,7 +19,6 @@ endif()
 add_library(engine
     aregion.cpp
     army.cpp
-    astring.cpp
     battle.cpp
     economy.cpp
     edit.cpp
