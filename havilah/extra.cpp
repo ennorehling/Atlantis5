@@ -198,27 +198,31 @@ static void CreateQuest(ARegionList& regions, int monfaction)
         for (count = 0; d >= destprobs[count]; count++)
             d -= destprobs[count];
         count++;
-        if (count > (int) temples.size()) {
+        int numTemples = rng::clamp(temples.size());
+        if (count > numTemples) {
             q->type = -1;
             count = -1;
         }
         // Choose that many unique regions
         for (i = 0; i < count; i++) {
             do {
-                destinations[i] = rng::get_random(temples.size());
+                destinations[i] = rng::get_random(numTemples);
                 // give a slight preference to regions with temples
                 for (it = temples.begin(), j = 0;
-                        j < destinations[i];
-                        it++, j++)
-                // ...by rerolling (only once) if we get a
-                // templeless region first time
-                if (!it->second)
-                    destinations[i] = rng::get_random(temples.size());
+                    j < destinations[i];
+                    it++, j++)
+                {
+                    // ...by rerolling (only once) if we get a
+                    // templeless region first time
+                    if (!it->second)
+                        destinations[i] = rng::get_random(numTemples);
+                }
                 // make sure we haven't chosen duplicates
                 clash = 0;
-                for (j = 0; j < i; j++)
+                for (j = 0; j < i; j++) {
                     if (destinations[i] == destinations[j])
                         clash = 1;
+                }
             } while (clash);
         }
         // Look up the names of the chosen regions

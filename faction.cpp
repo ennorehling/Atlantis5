@@ -745,8 +745,7 @@ int Faction::GetActivityCost(FactionActivity type) {
             }
         }
     }
-    assert(count <= INT_MAX);
-    return (int) count;
+    return rng::clamp(count);
 }
 
 void Faction::RecordActivity(ARegion *region, FactionActivity type) {

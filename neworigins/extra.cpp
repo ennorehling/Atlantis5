@@ -283,23 +283,30 @@ static void CreateQuest(ARegionList& regions, int monfaction)
             q->type = -1;
             count = -1;
         }
+
+        assert(temples.size() <= INT_MAX);
+        int numTemples = (int)temples.size();
         // Choose that many unique regions
         for (i = 0; i < count; i++) {
             do {
-                destinations[i] = rng::get_random(temples.size());
+                destinations[i] = rng::get_random(numTemples);
                 // give a slight preference to regions with temples
                 for (it = temples.begin(), j = 0;
-                        j < destinations[i];
-                        it++, j++)
-                // ...by rerolling (only once) if we get a
-                // templeless region first time
-                if (!it->second)
-                    destinations[i] = rng::get_random(temples.size());
+                    j < destinations[i];
+                    it++, j++)
+                {
+                    // ...by rerolling (only once) if we get a
+                    // templeless region first time
+                    if (!it->second)
+                        destinations[i] = rng::get_random(numTemples);
+                }
                 // make sure we haven't chosen duplicates
                 clash = 0;
-                for (j = 0; j < i; j++)
-                    if (destinations[i] == destinations[j])
+                for (j = 0; j < i; j++) {
+                    if (destinations[i] == destinations[j]) {
                         clash = 1;
+                    }
+                }
             } while (clash);
         }
         // Look up the names of the chosen regions
@@ -396,7 +403,9 @@ void empower_random_altar(ARegionList& regions, std::list<Faction *>& factions) 
         }
     }
     // pick a random altar to empower
-    int num = rng::get_random(unempowered_altars.size());
+    assert(unempowered_altars.size() <= INT_MAX);
+    int numAltars = (int) unempowered_altars.size();
+    int num = rng::get_random(numAltars);
     Object *o = unempowered_altars[num];
     o->type = O_EMPOWERED_ALTAR;
     o->set_name(ObjectDefs[O_EMPOWERED_ALTAR].name);
@@ -866,7 +875,7 @@ Faction *Game::CheckVictory()
                 winner = maxFaction;
                 message += "\n" + winner->name + " has enough votes and has won the game!";
             } else {
-                int percent = floor((max_vote * 100) / total_cities);
+                int percent = max_vote * 100 / total_cities;
                 if (tie) {
                     message += "\nThere is a tie for the most votes with multiple factions having ";
                 } else {

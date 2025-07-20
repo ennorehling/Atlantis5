@@ -308,7 +308,8 @@ int AGetName(int town, ARegion *reg)
 
     regionnames.push_back(temp);
 
-    return regionnames.size();
+    assert(regionnames.size() <= INT_MAX);
+    return (int) regionnames.size();
 }
 
 const std::string& AGetNameString(int name)
