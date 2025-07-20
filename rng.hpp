@@ -155,9 +155,9 @@ inline std::optional<size_t> get_weighted_index(const WeightContainer& weights) 
 }
 
 template <typename T>
-inline int clamp(T value, int high = INT_MAX, int low = INT_MIN) {
+inline int clamp(T value, T high = INT_MAX, T low = 0) {
     assert(value <= high);
-    assert(low <= (int)value);
+    assert(low <= value);
     return (int) value;
 }
 
