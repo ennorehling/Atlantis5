@@ -2022,7 +2022,7 @@ static int nregions;
 
 void SetupNames()
 {
-    nnames = regionnames.size();
+    nnames = rng::clamp(regionnames.size());
     nameused = new int[nnames];
 
     for (int i=0; i<nnames; i++) nameused[i] = 0;

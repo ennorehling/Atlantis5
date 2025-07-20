@@ -2021,8 +2021,7 @@ static int nregions;
 
 void SetupNames()
 {
-    assert(regionnames.size() <= INT_MAX);
-    nnames = (int) regionnames.size();
+    nnames = rng::clamp(regionnames.size());
     nameused = new int[nnames];
 
     for (int i=0; i<nnames; i++) nameused[i] = 0;

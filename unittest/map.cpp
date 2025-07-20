@@ -36,18 +36,6 @@ void ARegionList::create_underworld_level(int level, int xSize, int ySize, const
 
 void ARegionList::create_underdeep_level(int level, int xSize, int ySize, const std::string& name) { }
 
-void ARegionList::SetupNeighbors(ARegionArray *pRegs)
-{
-    int x, y;
-    for (x = 0; x < pRegs->x; x++) {
-        for (y = 0; y < pRegs->y; y++) {
-            ARegion *reg = pRegs->GetRegion(x, y);
-            if (!reg) continue;
-            NeighSetup(reg, pRegs);
-        }
-    }
-}
-
 void ARegionList::MakeIcosahedralRegions(int level, int xSize, int ySize) { }
 
 void ARegionList::SetupIcosahedralNeighbors(ARegionArray *pRegs) { }
