@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION LESS 12)
-        add_compile_options(-DHAVE_BROKEN_RANGES)
+        add_compile_options(-DCPP20_RANGES_ARE_BROKEN)
         message(STATUS "compiler has broken C++ ranges")
     endif()
 endif()
