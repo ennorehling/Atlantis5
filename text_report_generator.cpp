@@ -9,8 +9,6 @@
 #include "external/nlohmann/json.hpp"
 using json = nlohmann::json;
 
-// using namespace std;
-
 const int TextReportGenerator::line_width = 70;
 const int TextReportGenerator::map_width = 23;
 const size_t TextReportGenerator::template_fill_size = 6;
@@ -750,7 +748,7 @@ std::string TextReportGenerator::next_map_header_line(int line, const json& regi
                     ? to_s(region["settlement"]["name"])
                     : terrain_fill.at(to_s(region["terrain"]))[line - y]
                 );
-                size_t len = min(value.length(), template_fill_size);
+                size_t len = std::min(value.length(), template_fill_size);
                 result.replace(x, len, value.substr(0, len));
             } else {
                 if (region.contains("exits")) {
@@ -763,7 +761,7 @@ std::string TextReportGenerator::next_map_header_line(int line, const json& regi
                                 ? to_s(exit["region"]["settlement"]["name"])
                                 : terrain_fill.at(to_s(exit["region"]["terrain"]))[line - y]
                             );
-                            size_t len = min(value.length(), template_fill_size);
+                            size_t len = std::min(value.length(), template_fill_size);
                             result.replace(x, len, value.substr(0, len));
                         }
                     }
