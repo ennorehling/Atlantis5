@@ -35,7 +35,8 @@ map_viewer/.pnp.*
 map_viewer/.parcel-cache
 map_viewer/dist
 !*.[ch]
+!*.[ch]pp
 .gdb_history
-/.vs
-/out
 /build
+/out
+/.vs
