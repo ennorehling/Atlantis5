@@ -37,7 +37,7 @@ void WriteStats(Battle &battle, Army &army, StatsCategory category) {
             std::string s = "  - ";
 
             if (att.weaponIndex != -1) {
-                ItemType &weapon = ItemDefs[att.weaponIndex];
+                ItemType &weapon = Game::ItemDefs[att.weaponIndex];
                 s += std::string(weapon.name) + " [" + weapon.abr + "]";
             }
             else if (att.effect != "") {
@@ -176,7 +176,7 @@ void Battle::DoAttack(int round, Soldier *a, Army *attackers, Army *def,
     if (!def->NumAlive()) return;
 
     if (!behind && (a->riding != -1)) {
-        auto mount = find_mount(ItemDefs[a->riding].abr).value().get();
+        auto mount = find_mount(Game::ItemDefs[a->riding].abr).value().get();
         if (mount.mountSpecial != NULL) {
             int i, num, tot = -1;
             auto spd = find_special(mount.mountSpecial ? mount.mountSpecial : "").value().get();
@@ -209,7 +209,7 @@ void Battle::DoAttack(int round, Soldier *a, Army *attackers, Army *def,
     }
 
     for (int i = 0; i < numAttacks; i++) {
-        auto weapon_def = (a->weapon != -1) ? find_weapon(ItemDefs[a->weapon].abr) : std::nullopt;
+        auto weapon_def = (a->weapon != -1) ? find_weapon(Game::ItemDefs[a->weapon].abr) : std::nullopt;
 
         if (behind && !canAttackFromBehind) {
             if (!weapon_def) break;
@@ -341,14 +341,14 @@ void Battle::GetSpoils(std::list<Location *>& losers, ItemList& spoils, int ass)
             ++it;
             if (IsSoldier(i->type)) continue;
             // ignore incomplete ships
-            if (ItemDefs[i->type].type & IT_SHIP) continue;
+            if (Game::ItemDefs[i->type].type & IT_SHIP) continue;
             // New rule:  Assassins with RINGS cannot get AMTS in spoils
             // This rule is only meaningful with Proportional AMTS usage
             // is enabled, otherwise it has no effect.
             if ((ass == 2) && (i->type == I_AMULETOFTS)) continue;
             float percent = (float)numdead/(float)(numalive + numdead);
             // incomplete ships:
-            if (ItemDefs[i->type].type & IT_SHIP) {
+            if (Game::ItemDefs[i->type].type & IT_SHIP) {
                 if (rng::get_random(100) < percent) {
                     u->items.SetNum(i->type, 0);
                     if (i->num < spoils.GetNum(i->type)) spoils.SetNum(i->type, i->num);
@@ -356,8 +356,8 @@ void Battle::GetSpoils(std::list<Location *>& losers, ItemList& spoils, int ass)
             } else {
                 int num = (int)(i->num * percent);
                 int num2 = (num + rng::get_random(2))/2;
-                if (ItemDefs[i->type].type & IT_ALWAYS_SPOIL) num2 = num;
-                if (ItemDefs[i->type].type & IT_NEVER_SPOIL) num2 = 0;
+                if (Game::ItemDefs[i->type].type & IT_ALWAYS_SPOIL) num2 = num;
+                if (Game::ItemDefs[i->type].type & IT_NEVER_SPOIL) num2 = 0;
                 spoils.SetNum(i->type, spoils.GetNum(i->type) + num2);
                 u->items.SetNum(i->type, i->num - num);
             }

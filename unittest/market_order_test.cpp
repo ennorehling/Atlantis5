@@ -36,7 +36,7 @@ ut::suite<"Market Orders"> market_order_suite = []
       // M_SELL markets are what the region wants people to sell (ie, what it wants to buy).
       if (market->type == Market::MarketType::M_SELL) continue;
       // Don't buy men.
-      if (ItemDefs[market->item].type & IT_MAN) continue;
+      if (Game::ItemDefs[market->item].type & IT_MAN) continue;
       // Just for simplicity of testing, make the amount evenly divisible by 4.
       market->amount = market->amount ? (market->amount / 4) * 4 : 0;
       // Skip over things that don't have a quantity or price.
@@ -53,12 +53,12 @@ ut::suite<"Market Orders"> market_order_suite = []
     ss << "#atlantis 3\n";
     ss << "unit 2\n";
     for (int i = 0; i < max_amount; i++) {
-      ss << "buy 1 " << ItemDefs[item_id].abr << std::endl;
-      ss << "@buy 1 " << ItemDefs[item_id].abr << std::endl;
+      ss << "buy 1 " << Game::ItemDefs[item_id].abr << std::endl;
+      ss << "@buy 1 " << Game::ItemDefs[item_id].abr << std::endl;
     }
     ss << "unit 3\n";
-    ss << "buy " << std::to_string(max_amount) << ' ' << ItemDefs[item_id].abr << std::endl;
-    ss << "@buy " << std::to_string(max_amount) << ' ' << ItemDefs[item_id].abr << std::endl;
+    ss << "buy " << std::to_string(max_amount) << ' ' << Game::ItemDefs[item_id].abr << std::endl;
+    ss << "@buy " << std::to_string(max_amount) << ' ' << Game::ItemDefs[item_id].abr << std::endl;
 
     // each unit should end up with about 25% for each buy order.
     helper.parse_orders(faction->num, ss);
@@ -83,9 +83,9 @@ ut::suite<"Market Orders"> market_order_suite = []
     expect(unit->oldorders.size() == static_cast<size_t>(max_amount));
     expect(unit2->oldorders.size() == 1_ul);
     // And make sure the orders are buy orders.
-    expect(unit->oldorders.front() == "@buy 1 " + std::string(ItemDefs[item_id].abr));
-    expect(unit->oldorders.back() == "@buy 1 " + std::string(ItemDefs[item_id].abr));
-    expect(unit2->oldorders.front() == "@buy " + std::to_string(max_amount) + ' ' + std::string(ItemDefs[item_id].abr));
+    expect(unit->oldorders.front() == "@buy 1 " + std::string(Game::ItemDefs[item_id].abr));
+    expect(unit->oldorders.back() == "@buy 1 " + std::string(Game::ItemDefs[item_id].abr));
+    expect(unit2->oldorders.front() == "@buy " + std::to_string(max_amount) + ' ' + std::string(Game::ItemDefs[item_id].abr));
   };
 
   "Multiple sell orders of same type are merged"_test = []
@@ -108,7 +108,7 @@ ut::suite<"Market Orders"> market_order_suite = []
       // M_BUY markets are what the region wants people to buy (ie, what it wants to sell).
       if (market->type == Market::MarketType::M_BUY) continue;
       // Don't sell men, we don't do slavery.
-      if (ItemDefs[market->item].type & IT_MAN) continue;
+      if (Game::ItemDefs[market->item].type & IT_MAN) continue;
       // Just for simplicity of testing, make the amount evenly divisible by 4.
       market->amount = market->amount ? (market->amount / 4) * 4 : 0;
       // Skip over things that don't have a quantity or price.
@@ -129,12 +129,12 @@ ut::suite<"Market Orders"> market_order_suite = []
     ss << "#atlantis 3\n";
     ss << "unit 2\n";
     for (int i = 0; i < max_amount; i++) {
-      ss << "sell 1 " << ItemDefs[item_id].abr << std::endl;
-      ss << "@sell 1 " << ItemDefs[item_id].abr << std::endl;
+      ss << "sell 1 " << Game::ItemDefs[item_id].abr << std::endl;
+      ss << "@sell 1 " << Game::ItemDefs[item_id].abr << std::endl;
     }
     ss << "unit 3\n";
-    ss << "sell " << std::to_string(max_amount) << ' ' << ItemDefs[item_id].abr << std::endl;
-    ss << "@sell " << std::to_string(max_amount) << ' ' << ItemDefs[item_id].abr << std::endl;
+    ss << "sell " << std::to_string(max_amount) << ' ' << Game::ItemDefs[item_id].abr << std::endl;
+    ss << "@sell " << std::to_string(max_amount) << ' ' << Game::ItemDefs[item_id].abr << std::endl;
 
     // each unit should end up with about 25% for each buy order.
     helper.parse_orders(faction->num, ss);
@@ -161,8 +161,8 @@ ut::suite<"Market Orders"> market_order_suite = []
     expect(unit->oldorders.size() == static_cast<size_t>(max_amount));
     expect(unit2->oldorders.size() == 1_ul);
     // And make sure the orders are buy orders.
-    expect(unit->oldorders.front() == "@sell 1 " + std::string(ItemDefs[item_id].abr));
-    expect(unit->oldorders.back() == "@sell 1 " + std::string(ItemDefs[item_id].abr));
-    expect(unit2->oldorders.front() == "@sell " + std::to_string(max_amount) + ' ' + std::string(ItemDefs[item_id].abr));
+    expect(unit->oldorders.front() == "@sell 1 " + std::string(Game::ItemDefs[item_id].abr));
+    expect(unit->oldorders.back() == "@sell 1 " + std::string(Game::ItemDefs[item_id].abr));
+    expect(unit2->oldorders.front() == "@sell " + std::to_string(max_amount) + ' ' + std::string(Game::ItemDefs[item_id].abr));
   };
 };

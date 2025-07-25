@@ -107,11 +107,11 @@ int SkillMax(char const *skill, int race)
     auto pS = FindSkill(skill);
     if (!Globals->MAGE_NONLEADERS) {
         if (pS && (pS->get().flags & SkillType::MAGIC)) {
-            if (!(ItemDefs[race].type & IT_LEADER)) return 0;
+            if (!(Game::ItemDefs[race].type & IT_LEADER)) return 0;
         }
     }
 
-    auto man_def = find_race(ItemDefs[race].abr);
+    auto man_def = find_race(Game::ItemDefs[race].abr);
     if (!man_def) return 0;
     auto mt = man_def->get();
 

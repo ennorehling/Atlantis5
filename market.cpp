@@ -14,11 +14,11 @@ void Market::post_turn(int population, int wages)
     //
     if (amount == -1) return;
 
-    if (ItemDefs[item].type & IT_MAN) {
-        float ratio = ItemDefs[item].baseprice / (10 * (float)Globals->BASE_MAN_COST);
+    if (Game::ItemDefs[item].type & IT_MAN) {
+        float ratio = Game::ItemDefs[item].baseprice / (10 * (float)Globals->BASE_MAN_COST);
         // hack: included new wage factor of ten in float assignment above
         price = (int)((float) wages * 4 * ratio);
-        if (ItemDefs[item].type & IT_LEADER)
+        if (Game::ItemDefs[item].type & IT_LEADER)
             amount = population / 125;
         else
             amount = population / 25;
@@ -47,7 +47,7 @@ void Market::post_turn(int population, int wages)
 void Market::write_out(std::ostream& f)
 {
     f << static_cast<std::underlying_type_t<MarketType>>(type) << '\n';
-    f << (item == -1 ? "NO_ITEM" : ItemDefs[item].abr) << '\n';
+    f << (item == -1 ? "NO_ITEM" : Game::ItemDefs[item].abr) << '\n';
     f << price << '\n';
     f << amount << '\n';
     f << minpop << '\n';

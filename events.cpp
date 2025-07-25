@@ -38,7 +38,7 @@ void BattleSide::AssignArmy(Army* army) {
         bool lost = soldier->hits == 0;
         if (lost) this->lost++;
 
-        ItemType& item = ItemDefs[soldier->race];
+        ItemType& item = Game::ItemDefs[soldier->race];
 
         if (item.flags & ItemType::MANPRODUCE) {
             this->fmi++;

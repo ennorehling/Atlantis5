@@ -5,27 +5,27 @@
 
 static const std::string describe_escape_parameters(int item)
 {
-    if (item < 0 || item >= NITEMS || !ItemDefs[item].escape) return "";
+    if (item < 0 || item >= NITEMS || !Game::ItemDefs[item].escape) return "";
 
     std::string desc;
-    if (!(ItemDefs[item].escape & ItemType::LOSS_CHANCE) && !(ItemDefs[item].escape & ItemType::HAS_SKILL)) {
-        desc += "Each " + ItemDefs[item].name + " has a chance to escape equal to " +
+    if (!(Game::ItemDefs[item].escape & ItemType::LOSS_CHANCE) && !(Game::ItemDefs[item].escape & ItemType::HAS_SKILL)) {
+        desc += "Each " + Game::ItemDefs[item].name + " has a chance to escape equal to " +
             (
-                (ItemDefs[item].escape & ItemType::ESC_NUM_SQUARE)
-                ? "the total number of " + ItemDefs[item].names + " under the mage's control"
+                (Game::ItemDefs[item].escape & ItemType::ESC_NUM_SQUARE)
+                ? "the total number of " + Game::ItemDefs[item].names + " under the mage's control"
                 : "1"
-            ) + " in " + (ItemDefs[item].esc_val > 1 ? std::to_string(ItemDefs[item].esc_val) + " times ": "")
+            ) + " in " + (Game::ItemDefs[item].esc_val > 1 ? std::to_string(Game::ItemDefs[item].esc_val) + " times ": "")
             + "the mage's skill level";
 
         desc += (
-            (ItemDefs[item].escape & ItemType::ESC_LEV_SQUARE) ? " squared" :
-            (ItemDefs[item].escape & ItemType::ESC_LEV_CUBE) ? " cubed" :
-            (ItemDefs[item].escape & ItemType::ESC_LEV_QUAD) ? " to the fourth power" :
+            (Game::ItemDefs[item].escape & ItemType::ESC_LEV_SQUARE) ? " squared" :
+            (Game::ItemDefs[item].escape & ItemType::ESC_LEV_CUBE) ? " cubed" :
+            (Game::ItemDefs[item].escape & ItemType::ESC_LEV_QUAD) ? " to the fourth power" :
             "" // None of the above apply
         );
     }
 
-    if (ItemDefs[item].escape & ItemType::LOSE_LINKED) {
+    if (Game::ItemDefs[item].escape & ItemType::LOSE_LINKED) {
         desc += ". If any one does escape, its first action will be to release its companions";
     }
     desc += ". ";
@@ -53,16 +53,16 @@ const std::string ShowSkill::Report(Faction *f) const
             break;
         case S_MINING:
             if (level > 1) break;
-            if (!(ItemDefs[I_IRON].flags & ItemType::DISABLED) ||
-                !(ItemDefs[I_MITHRIL].flags & ItemType::DISABLED) ||
-                !(ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED) ||
-                !(ItemDefs[I_GEMS].flags & ItemType::DISABLED)) {
+            if (!(Game::ItemDefs[I_IRON].flags & ItemType::DISABLED) ||
+                !(Game::ItemDefs[I_MITHRIL].flags & ItemType::DISABLED) ||
+                !(Game::ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED) ||
+                !(Game::ItemDefs[I_GEMS].flags & ItemType::DISABLED)) {
                 str += "This skill deals with all aspects of extracting raw ";
-                if (!(ItemDefs[I_IRON].flags & ItemType::DISABLED) ||
-                    !(ItemDefs[I_MITHRIL].flags & ItemType::DISABLED) ||
-                    !(ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED)) {
+                if (!(Game::ItemDefs[I_IRON].flags & ItemType::DISABLED) ||
+                    !(Game::ItemDefs[I_MITHRIL].flags & ItemType::DISABLED) ||
+                    !(Game::ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED)) {
                     str += "metals";
-                    if (!(ItemDefs[I_GEMS].flags & ItemType::DISABLED)) {
+                    if (!(Game::ItemDefs[I_GEMS].flags & ItemType::DISABLED)) {
                         str += " and gems";
                     }
                 } else {
@@ -402,7 +402,7 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_PORTAL_LORE:
             if (level > 1) break;
             /* XXX -- This should be cleaner somehow. */
-            if (ItemDefs[I_PORTAL].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_PORTAL].flags & ItemType::DISABLED) break;
             str += "A mage with the Portal Lore skill may, with the aid of "
                 "another mage";
             if (Globals->APPRENTICES_EXIST) {
@@ -749,11 +749,11 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_WOLF_LORE:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_WOLF].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_WOLF].flags & ItemType::DISABLED) break;
             str += "A mage with Wolf Lore skill may summon wolves, who will "
                 "fight for him in combat. A mage may summon a number of "
                 "wolves averaging ";
-            str += std::to_string(ItemDefs[I_WOLF].mOut);
+            str += std::to_string(Game::ItemDefs[I_WOLF].mOut);
             str += " percent times his skill level, and control a total number "
                 "of his skill level squared times 4 wolves; the wolves will "
                 "be placed in the mages inventory. To "
@@ -772,13 +772,13 @@ const std::string ShowSkill::Report(Faction *f) const
                     "where <dir> is the direction the mage wishes the birds "
                     "to report on.";
             } else if (level == 3) {
-                if (ItemDefs[I_EAGLE].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_EAGLE].flags & ItemType::DISABLED) break;
                 str += "A mage with Bird Lore 3 can summon eagles to join "
                     "him, who will aid him in combat, and provide for flying "
                     "transportation. A mage may summon ";
-                if (ItemDefs[I_EAGLE].mOut > 0) {
+                if (Game::ItemDefs[I_EAGLE].mOut > 0) {
                     str += "an average of ";
-                    str += std::to_string(ItemDefs[I_EAGLE].mOut);
+                    str += std::to_string(Game::ItemDefs[I_EAGLE].mOut);
                     str += " percent times his skill level minus 2 eagles";
                 }
                 else
@@ -792,13 +792,13 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_DRAGON_LORE:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_DRAGON].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_DRAGON].flags & ItemType::DISABLED) break;
             str += "A mage with Dragon Lore skill can summon dragons to "
                 "join him, to aid in battle, and provide flying "
                 "transportation. ";
-            if (ItemDefs[I_DRAGON].mOut > 0) {
+            if (Game::ItemDefs[I_DRAGON].mOut > 0) {
                 str += "A mage has a ";
-                str += std::to_string(ItemDefs[I_DRAGON].mOut);
+                str += std::to_string(Game::ItemDefs[I_DRAGON].mOut);
                 str += "% times his skill level chance to summon a dragon";
             }
             else
@@ -822,15 +822,15 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_SUMMON_SKELETONS:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_SKELETON].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_SKELETON].flags & ItemType::DISABLED) break;
             str += "A mage with the Summon Skeletons skill may summon "
                 "skeletons into his inventory, to aid him in battle. "
                 "Skeletons may be given to other units, as they follow "
-                "instructions mindlessly; however, they have a " + std::to_string(ItemDefs[I_SKELETON].esc_val) +
+                "instructions mindlessly; however, they have a " + std::to_string(Game::ItemDefs[I_SKELETON].esc_val) +
                 " percent chance of decaying each turn. A mage can summon skeletons "
                 "at an average rate of ";
-            if (ItemDefs[I_SKELETON].mOut > 0) {
-                str += std::to_string(ItemDefs[I_SKELETON].mOut);
+            if (Game::ItemDefs[I_SKELETON].mOut > 0) {
+                str += std::to_string(Game::ItemDefs[I_SKELETON].mOut);
                 str += " percent times his skill level.";
             }
             else
@@ -841,15 +841,15 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_RAISE_UNDEAD:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_UNDEAD].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_UNDEAD].flags & ItemType::DISABLED) break;
             str += "A mage with the Raise Undead skill may summon undead "
                 "into his inventory, to aid him in battle. Undead may be "
                 "given to other units, as they follow instructions "
-                "mindlessly; however, they have a " + std::to_string(ItemDefs[I_UNDEAD].esc_val) +
+                "mindlessly; however, they have a " + std::to_string(Game::ItemDefs[I_UNDEAD].esc_val) +
                 " percent chance of decaying each turn. A mage can summon undead at an average "
                 "rate of ";
-            if (ItemDefs[I_UNDEAD].mOut > 0) {
-                str += std::to_string(ItemDefs[I_UNDEAD].mOut);
+            if (Game::ItemDefs[I_UNDEAD].mOut > 0) {
+                str += std::to_string(Game::ItemDefs[I_UNDEAD].mOut);
                 str += " percent times his skill level.";
             }
             else
@@ -860,14 +860,14 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_SUMMON_LICH:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_LICH].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_LICH].flags & ItemType::DISABLED) break;
             str += "A mage with the Summon Lich skill may summon a lich "
                 "into his inventory, to aid him in battle. Liches may be "
                 "given to other units, as they follow instructions "
-                "mindlessly; however, they have a " + std::to_string(ItemDefs[I_LICH].esc_val) +
+                "mindlessly; however, they have a " + std::to_string(Game::ItemDefs[I_LICH].esc_val) +
                 " percent chance of decaying each turn. A mage has a ";
-            if (ItemDefs[I_LICH].mOut > 0) {
-                str += std::to_string(ItemDefs[I_LICH].mOut);
+            if (Game::ItemDefs[I_LICH].mOut > 0) {
+                str += std::to_string(Game::ItemDefs[I_LICH].mOut);
                 str += " percent times his skill level";
             }
             else
@@ -896,11 +896,11 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_SUMMON_IMPS:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_IMP].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_IMP].flags & ItemType::DISABLED) break;
             str += "A mage with the Summon Imps skill may summon imps into "
                 "his inventory, to aid him in combat. A mage may summon ";
-            if (ItemDefs[I_IMP].mOut > 0) {
-                str += std::to_string(ItemDefs[I_IMP].mOut);
+            if (Game::ItemDefs[I_IMP].mOut > 0) {
+                str += std::to_string(Game::ItemDefs[I_IMP].mOut);
                 str += " percent times his skill level imps";
             }
             else
@@ -916,11 +916,11 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_SUMMON_DEMON:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_DEMON].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_DEMON].flags & ItemType::DISABLED) break;
             str += "A mage with the Summon Demon skill may summon demons "
                 "into his inventory, to aid him in combat. A mage may summon ";
-            if (ItemDefs[I_DEMON].mOut > 0) {
-                str += std::to_string(ItemDefs[I_DEMON].mOut);
+            if (Game::ItemDefs[I_DEMON].mOut > 0) {
+                str += std::to_string(Game::ItemDefs[I_DEMON].mOut);
                 str += " percent times his skill level demons";
             }
             else
@@ -935,10 +935,10 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_SUMMON_BALROG:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_BALROG].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_BALROG].flags & ItemType::DISABLED) break;
             str += "A mage with the Summon Balrog skill may summon a balrog "
                 "into his inventory, to aid him in combat. A mage has a ";
-            str += std::to_string(ItemDefs[I_BALROG].mOut);
+            str += std::to_string(Game::ItemDefs[I_BALROG].mOut);
             str += " percent times his skill level chance of summoning a balrog, "
                 "but may only summon a balrog if one is not already under "
                 "his control. As with other demons, the balrog has a chance "
@@ -979,7 +979,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "illusionary beasts that appear in the mage's inventory. "
                     "These beasts will fight in combat, but do not attack, "
                     "and are killed whenever they are attacked.";
-                if (!(ItemDefs[I_WOLF].flags & ItemType::DISABLED)) {
+                if (!(Game::ItemDefs[I_WOLF].flags & ItemType::DISABLED)) {
                     str += " Create Phantasmal Beasts at level 1 allows the "
                         "mage to summon illusionary wolves; the number the "
                         "mage can summon, or have in his inventory at one "
@@ -996,7 +996,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "'i' to the normal string. (For example: to reference "
                     "an illusionary wolf, you would use 'iwolf').";
             } else if (level == 2) {
-                if (ItemDefs[I_EAGLE].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_EAGLE].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Beasts at level 2 allows the mage "
                     "to summon illusionary eagles into his inventory. To "
                     "summon illusionary eagles, the mage should CAST "
@@ -1005,7 +1005,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "appear in his inventory. The number of eagles that a "
                     "mage may have in his inventory is equal to mage's skill squared.";
             } else if (level == 3) {
-                if (ItemDefs[I_DRAGON].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_DRAGON].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Beasts at level 3 allows the "
                     "mage to summon illusionary dragons into his "
                     "inventory. To summon illusionary dragons, the mage "
@@ -1020,7 +1020,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "illusionary undead that appear in the mage's inventory. "
                     "These undead will fight in combat, but do not attack, "
                     "and are killed whenever they are attacked.";
-                if (!(ItemDefs[I_SKELETON].flags & ItemType::DISABLED)) {
+                if (!(Game::ItemDefs[I_SKELETON].flags & ItemType::DISABLED)) {
                     str += " Create Phantasmal Undead at level 1 allows the "
                         "mage to summon illusionary skeletons; the number "
                         "the mage can summon, or have in his inventory at "
@@ -1037,7 +1037,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "'i' to the normal string. (Example: to reference an "
                     "illusionary skeleton, you would use 'iskeleton').";
             } else if (level == 2) {
-                if (ItemDefs[I_UNDEAD].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_UNDEAD].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Undead at level 2 allows the mage "
                     "to summon illusionary undead into his inventory. To "
                     "summon illusionary undead, the mage should CAST "
@@ -1046,7 +1046,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "appear in his inventory. The number of undead that a "
                     "mage may have in his inventory is equal to mage's skill squared.";
             } else if (level == 3) {
-                if (ItemDefs[I_LICH].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_LICH].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Undead at level 3 allows the mage "
                     "to summon illusionary liches into his inventory. To "
                     "summon illusionary liches, the mage should CAST "
@@ -1062,7 +1062,7 @@ const std::string ShowSkill::Report(Faction *f) const
                         "inventory. These demons will fight in combat, but "
                         "do not attack, and are killed whenever they are "
                         "attacked.";
-                if (!(ItemDefs[I_IMP].flags & ItemType::DISABLED)) {
+                if (!(Game::ItemDefs[I_IMP].flags & ItemType::DISABLED)) {
                     str += " Create Phantasmal Demons at level 1 allows the "
                         "mage to summon illusionary imps; the number the "
                         "mage can summon, or have in his inventory at one "
@@ -1079,7 +1079,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "'i' to the normal string. (Example: to reference an "
                     "illusionary imp, you would use 'iimp').";
             } else if (level == 2) {
-                if (ItemDefs[I_DEMON].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_DEMON].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Demons at level 2 allows the mage "
                     "to summon illusionary demons into his inventory. To "
                     "summon illusionary demons, the mage should CAST "
@@ -1088,7 +1088,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     "appear in his inventory. The number of demons that a "
                     "mage may have in his inventory is equal to mage's skill squared.";
             } else if (level == 3) {
-                if (ItemDefs[I_BALROG].flags & ItemType::DISABLED) break;
+                if (Game::ItemDefs[I_BALROG].flags & ItemType::DISABLED) break;
                 str += "Create Phantasmal Demons at level 3 allows the mage "
                     "to summon an illusionary balrog into his inventory. To "
                     "summon an illusionary balrog, the mage should CAST "
@@ -1170,7 +1170,7 @@ const std::string ShowSkill::Report(Faction *f) const
                 }
             } else if (level == 3) {
                 if (
-                    !(ItemDefs[I_ROOTSTONE].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_ROOTSTONE].flags & ItemType::DISABLED) &&
                     (
                         !(ObjectDefs[O_MTOWER].flags & ObjectType::DISABLED) ||
                         !(ObjectDefs[O_MFORTRESS].flags & ObjectType::DISABLED) ||
@@ -1264,7 +1264,7 @@ const std::string ShowSkill::Report(Faction *f) const
         case S_CONSTRUCT_PORTAL:
             /* XXX -- This should be cleaner somehow. */
             if (level > 1) break;
-            if (ItemDefs[I_PORTAL].flags & ItemType::DISABLED) break;
+            if (Game::ItemDefs[I_PORTAL].flags & ItemType::DISABLED) break;
             str += "A mage with the Construct Portal skill may "
                 "construct a Portal";
             if (!(SkillDefs[S_PORTAL_LORE].flags & SkillType::DISABLED)) {
@@ -1278,18 +1278,18 @@ const std::string ShowSkill::Report(Faction *f) const
                 str += "A mage with Transmutation may transform basic resources into more esoteric ones. ";
                 std::vector<std::string> options;
                 if (
-                    !(ItemDefs[I_STONE].flags & ItemType::DISABLED) &&
-                    !(ItemDefs[I_ROOTSTONE].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_STONE].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_ROOTSTONE].flags & ItemType::DISABLED)
                 ) {
-                    std::string option = item_string(I_STONE, ItemDefs[I_ROOTSTONE].mOut) +
+                    std::string option = item_string(I_STONE, Game::ItemDefs[I_ROOTSTONE].mOut) +
                         " times the skill level into " + item_string(I_ROOTSTONE, 1);
                     options.push_back(option);
                 }
                 if (
-                    !(ItemDefs[I_IRON].flags & ItemType::DISABLED) &&
-                    !(ItemDefs[I_MITHRIL].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_IRON].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_MITHRIL].flags & ItemType::DISABLED)
                 ) {
-                    std::string option = item_string(I_IRON, ItemDefs[I_MITHRIL].mOut) +
+                    std::string option = item_string(I_IRON, Game::ItemDefs[I_MITHRIL].mOut) +
                         " times the skill level into " + item_string(I_MITHRIL, 1);
                     options.push_back(option);
                 }
@@ -1304,41 +1304,41 @@ const std::string ShowSkill::Report(Faction *f) const
                     "maximum, you may CAST Transmutation [number] <material> instead.";
             } else if (level == 2) {
                 if (
-                    !(ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
-                    !(ItemDefs[I_IRONWOOD].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_IRONWOOD].flags & ItemType::DISABLED)
                 ) {
-                    str += "At this level the mage may transmute " + item_string(I_WOOD, ItemDefs[I_IRONWOOD].mOut) +
+                    str += "At this level the mage may transmute " + item_string(I_WOOD, Game::ItemDefs[I_IRONWOOD].mOut) +
                         " times the skill level into " + item_string(I_IRONWOOD, 1) + ".";
                 }
             } else if (level == 3) {
                 if (
-                    !(ItemDefs[I_FUR].flags & ItemType::DISABLED) && !(ItemDefs[I_FLOATER].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_FUR].flags & ItemType::DISABLED) && !(Game::ItemDefs[I_FLOATER].flags & ItemType::DISABLED)
                 ) {
-                    str += "At this level the mage may transmute " + item_string(I_FUR, ItemDefs[I_FLOATER].mOut) +
+                    str += "At this level the mage may transmute " + item_string(I_FUR, Game::ItemDefs[I_FLOATER].mOut) +
                         " times the skill level into " + item_string(I_FLOATER, 1) + ".";
                 }
             } else if (level == 4) {
                 if (
-                    !(ItemDefs[I_WOOD].flags & ItemType::DISABLED) && !(ItemDefs[I_YEW].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_WOOD].flags & ItemType::DISABLED) && !(Game::ItemDefs[I_YEW].flags & ItemType::DISABLED)
                 ) {
-                    str += "At this level the mage may transmute " + item_string(I_WOOD, ItemDefs[I_YEW].mOut) +
+                    str += "At this level the mage may transmute " + item_string(I_WOOD, Game::ItemDefs[I_YEW].mOut) +
                         " times the skill level into " + item_string(I_YEW, 1) + ".";
                 }
             } else if (level == 5) {
                 if (
-                    !(ItemDefs[I_HORSE].flags & ItemType::DISABLED) &&
-                    !(ItemDefs[I_WHORSE].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_HORSE].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_WHORSE].flags & ItemType::DISABLED)
                 ) {
                     str += "At this level the mage may transmute " +
-                        item_string(I_HORSE, ItemDefs[I_WHORSE].mOut, ALWAYSPLURAL) + " times the skill level into " +
+                        item_string(I_HORSE, Game::ItemDefs[I_WHORSE].mOut, ALWAYSPLURAL) + " times the skill level into " +
                         item_string(I_WHORSE, 1, ALWAYSPLURAL) + ".";
                 }
                 if (
-                    !(ItemDefs[I_IRON].flags & ItemType::DISABLED) &&
-                    !(ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED)
+                    !(Game::ItemDefs[I_IRON].flags & ItemType::DISABLED) &&
+                    !(Game::ItemDefs[I_ADMANTIUM].flags & ItemType::DISABLED)
                 ) {
                     str += " At this level the mage may transmute " +
-                        item_string(I_IRON, ItemDefs[I_ADMANTIUM].mOut, ALWAYSPLURAL) + " times the skill level into " +
+                        item_string(I_IRON, Game::ItemDefs[I_ADMANTIUM].mOut, ALWAYSPLURAL) + " times the skill level into " +
                         item_string(I_ADMANTIUM, 1, ALWAYSPLURAL) + ".";
                 }
             }
@@ -1372,11 +1372,11 @@ const std::string ShowSkill::Report(Faction *f) const
                     "use magic items normally only usable by mages.";
             }
             max = 1;
-            if (!(ItemDefs[I_CORNUCOPIA].flags & ItemType::DISABLED)) max = 2;
+            if (!(Game::ItemDefs[I_CORNUCOPIA].flags & ItemType::DISABLED)) max = 2;
             if (
-                !(ItemDefs[I_GATE_CRYSTAL].flags & ItemType::DISABLED) ||
-                !(ItemDefs[I_STAFFOFH].flags & ItemType::DISABLED) ||
-                !(ItemDefs[I_SCRYINGORB].flags & ItemType::DISABLED)
+                !(Game::ItemDefs[I_GATE_CRYSTAL].flags & ItemType::DISABLED) ||
+                !(Game::ItemDefs[I_STAFFOFH].flags & ItemType::DISABLED) ||
+                !(Game::ItemDefs[I_SCRYINGORB].flags & ItemType::DISABLED)
             ) {
                 max = 3;
             }
@@ -1467,51 +1467,51 @@ const std::string ShowSkill::Report(Faction *f) const
 
     const SkillType& sk1 = SkillDefs[skill];
     for (i = NITEMS - 1; i >= 0; i--) {
-        if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-        auto sk2 = FindSkill(ItemDefs[i].pSkill);
-        if (sk2 && sk1 == sk2->get() && ItemDefs[i].pLevel == level) {
+        if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+        auto sk2 = FindSkill(Game::ItemDefs[i].pSkill);
+        if (sk2 && sk1 == sk2->get() && Game::ItemDefs[i].pLevel == level) {
             int canmake = 1;
             int resource = 1;
-            for (c = 0; c < sizeof(ItemDefs[i].pInput)/sizeof(ItemDefs[i].pInput[0]); c++) {
-                if (ItemDefs[i].pInput[c].item == -1) continue;
+            for (c = 0; c < sizeof(Game::ItemDefs[i].pInput)/sizeof(Game::ItemDefs[i].pInput[0]); c++) {
+                if (Game::ItemDefs[i].pInput[c].item == -1) continue;
                 resource = 0;
-                if (ItemDefs[ItemDefs[i].pInput[c].item].flags & ItemType::DISABLED) {
+                if (Game::ItemDefs[Game::ItemDefs[i].pInput[c].item].flags & ItemType::DISABLED) {
                     canmake = 0;
                 }
             }
             if (canmake && last1 == -1) {
                 last1 = i;
             }
-            if (resource && (ItemDefs[i].type & IT_ADVANCED) && last == -1) {
+            if (resource && (Game::ItemDefs[i].type & IT_ADVANCED) && last == -1) {
                 last = i;
             }
         }
 
     }
     for (i = 0; i < NITEMS; i++) {
-        if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-        int illusion = (ItemDefs[i].type & IT_ILLUSION);
-        auto sk2 = FindSkill(ItemDefs[i].mSkill);
-        if (sk2 && sk1 == sk2->get() && ItemDefs[i].mLevel == level) {
+        if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+        int illusion = (Game::ItemDefs[i].type & IT_ILLUSION);
+        auto sk2 = FindSkill(Game::ItemDefs[i].mSkill);
+        if (sk2 && sk1 == sk2->get() && Game::ItemDefs[i].mLevel == level) {
             int canmagic = 1;
-            for (c = 0; c < sizeof(ItemDefs[i].mInput)/sizeof(ItemDefs[i].mInput[0]); c++) {
-                if (ItemDefs[i].mInput[c].item == -1) continue;
-                if (ItemDefs[ItemDefs[i].mInput[c].item].flags & ItemType::DISABLED) {
+            for (c = 0; c < sizeof(Game::ItemDefs[i].mInput)/sizeof(Game::ItemDefs[i].mInput[0]); c++) {
+                if (Game::ItemDefs[i].mInput[c].item == -1) continue;
+                if (Game::ItemDefs[Game::ItemDefs[i].mInput[c].item].flags & ItemType::DISABLED) {
                     canmagic = 0;
                 }
             }
-            if (ItemDefs[i].mOut == 0)
+            if (Game::ItemDefs[i].mOut == 0)
                 canmagic = 0;
             if (canmagic) {
                 temp2 += "A mage with this skill ";
-                if (ItemDefs[i].mOut < 100) {
+                if (Game::ItemDefs[i].mOut < 100) {
                     temp2 += "has a ";
-                    temp2 += std::to_string(ItemDefs[i].mOut);
+                    temp2 += std::to_string(Game::ItemDefs[i].mOut);
                     temp2 += " percent times their level chance to create a";
                     if (illusion) {
                         temp2 += "n illusory ";
                     } else {
-                        switch (ItemDefs[i].name[0]) {
+                        switch (Game::ItemDefs[i].name[0]) {
                             case 'a':
                             case 'e':
                             case 'i':
@@ -1529,37 +1529,37 @@ const std::string ShowSkill::Report(Faction *f) const
                         }
                         temp2 += " ";
                     }
-                    temp2 += ItemDefs[i].name;
+                    temp2 += Game::ItemDefs[i].name;
                 } else {
                     temp2 += "may create ";
-                    if (ItemDefs[i].mOut > 100) {
-                        temp2 += std::to_string(ItemDefs[i].mOut / 100);
+                    if (Game::ItemDefs[i].mOut > 100) {
+                        temp2 += std::to_string(Game::ItemDefs[i].mOut / 100);
                         temp2 += " times ";
                     }
                     temp2 += "their level in ";
-                    temp2 += std::string(illusion?"illusory ":"") + ItemDefs[i].names;
+                    temp2 += std::string(illusion?"illusory ":"") + Game::ItemDefs[i].names;
                 }
                 temp2 += " [";
-                temp2 += ItemDefs[i].abr;
+                temp2 += Game::ItemDefs[i].abr;
                 temp2 += "] via magic";
                 count = 0;
-                for (c = 0; c < sizeof(ItemDefs[i].mInput)/sizeof(ItemDefs[i].mInput[0]); c++) {
-                    if (ItemDefs[i].mInput[c].item == -1) continue;
+                for (c = 0; c < sizeof(Game::ItemDefs[i].mInput)/sizeof(Game::ItemDefs[i].mInput[0]); c++) {
+                    if (Game::ItemDefs[i].mInput[c].item == -1) continue;
                     count++;
                 }
                 if (count > 0) {
                     temp2 += " at a cost of ";
                     temp4 = "";
                     count = 0;
-                    for (c = 0; c < sizeof(ItemDefs[i].mInput)/sizeof(ItemDefs[i].mInput[0]); c++) {
-                        if (ItemDefs[i].mInput[c].item == -1) continue;
+                    for (c = 0; c < sizeof(Game::ItemDefs[i].mInput)/sizeof(Game::ItemDefs[i].mInput[0]); c++) {
+                        if (Game::ItemDefs[i].mInput[c].item == -1) continue;
                         if (!temp4.empty()) {
                             if (count > 0)
                                 temp2 += ", ";
                             temp2 += temp4;
                             count++;
                         }
-                        temp4 = item_string(ItemDefs[i].mInput[c].item, ItemDefs[i].mInput[c].amt);
+                        temp4 = item_string(Game::ItemDefs[i].mInput[c].item, Game::ItemDefs[i].mInput[c].amt);
                     }
                     if (count > 0)
                         temp2 += " and ";
@@ -1570,20 +1570,20 @@ const std::string ShowSkill::Report(Faction *f) const
                 f->DiscoverItem(i, 1, 1);
             }
         }
-        sk2 = FindSkill(ItemDefs[i].pSkill);
-        if (sk2 && sk1 == sk2->get() && ItemDefs[i].pLevel == level) {
+        sk2 = FindSkill(Game::ItemDefs[i].pSkill);
+        if (sk2 && sk1 == sk2->get() && Game::ItemDefs[i].pLevel == level) {
             int canmake = 1;
             int resource = 1;
-            for (c = 0; c < sizeof(ItemDefs[i].pInput)/sizeof(ItemDefs[i].pInput[0]); c++) {
-                if (ItemDefs[i].pInput[c].item == -1) continue;
+            for (c = 0; c < sizeof(Game::ItemDefs[i].pInput)/sizeof(Game::ItemDefs[i].pInput[0]); c++) {
+                if (Game::ItemDefs[i].pInput[c].item == -1) continue;
                 resource = 0;
-                if (ItemDefs[ItemDefs[i].pInput[c].item].flags & ItemType::DISABLED) {
+                if (Game::ItemDefs[Game::ItemDefs[i].pInput[c].item].flags & ItemType::DISABLED) {
                     canmake = 0;
                 }
             }
             if (canmake) {
                 // IT_SHIP: switch to BUILD description
-                if ((ItemDefs[i].type & IT_SHIP) && (build == 0)) {
+                if ((Game::ItemDefs[i].type & IT_SHIP) && (build == 0)) {
                     temp1 = temp3;
                     build = 1;
                 }
@@ -1596,40 +1596,40 @@ const std::string ShowSkill::Report(Faction *f) const
                     }
                 }
                 comma1++;
-                if (ItemDefs[i].flags & ItemType::SKILLOUT) {
+                if (Game::ItemDefs[i].flags & ItemType::SKILLOUT) {
                     temp1 += "a number of ";
                 }
-                if (ItemDefs[i].flags & ItemType::SKILLOUT_HALF) {
+                if (Game::ItemDefs[i].flags & ItemType::SKILLOUT_HALF) {
                     temp1 += "a number of ";
                 }
-                temp1 += std::string(illusion?"illusory ":"") + ItemDefs[i].names;
+                temp1 += std::string(illusion?"illusory ":"") + Game::ItemDefs[i].names;
                 temp1 += " [";
-                temp1 += ItemDefs[i].abr;
+                temp1 += Game::ItemDefs[i].abr;
                 temp1 += "]";
-                if (ItemDefs[i].flags & ItemType::SKILLOUT) {
+                if (Game::ItemDefs[i].flags & ItemType::SKILLOUT) {
                     temp1 += " equal to their skill level";
                 }
-                if (ItemDefs[i].flags & ItemType::SKILLOUT_HALF) {
+                if (Game::ItemDefs[i].flags & ItemType::SKILLOUT_HALF) {
                     temp1 += " equal to skill level divided by 2, rounded up";
                 }
                 if (!resource) {
                     temp1 += " from ";
-                    if (ItemDefs[i].flags & ItemType::ORINPUTS)
+                    if (Game::ItemDefs[i].flags & ItemType::ORINPUTS)
                         temp1 += "any of ";
                     temp4 = "";
                     count = 0;
-                    for (c = 0; c < sizeof(ItemDefs[i].pInput)/sizeof(ItemDefs[i].pInput[0]); c++) {
-                        if (ItemDefs[i].pInput[c].item == -1) continue;
+                    for (c = 0; c < sizeof(Game::ItemDefs[i].pInput)/sizeof(Game::ItemDefs[i].pInput[0]); c++) {
+                        if (Game::ItemDefs[i].pInput[c].item == -1) continue;
                         if (!temp4.empty()) {
                             if (count > 0)
                                 temp1 += ", ";
                             temp1 += temp4;
                             count++;
                         }
-                        temp4 = item_string(ItemDefs[i].pInput[c].item,
-                            ItemDefs[i].type & IT_SHIP ?
-                                ItemDefs[i].pMonths :
-                                ItemDefs[i].pInput[c].amt);
+                        temp4 = item_string(Game::ItemDefs[i].pInput[c].item,
+                            Game::ItemDefs[i].type & IT_SHIP ?
+                                Game::ItemDefs[i].pMonths :
+                                Game::ItemDefs[i].pInput[c].amt);
                     }
                     if (count > 0)
                         temp1 += " and ";
@@ -1637,12 +1637,12 @@ const std::string ShowSkill::Report(Faction *f) const
                 }
                 if (!build) {
                     temp1 += " at a rate of ";
-                    temp1 += std::to_string(ItemDefs[i].pOut);
+                    temp1 += std::to_string(Game::ItemDefs[i].pOut);
                     temp1 += " per ";
-                    if (ItemDefs[i].pMonths == 1) {
+                    if (Game::ItemDefs[i].pMonths == 1) {
                         temp1 += "man-month";
                     } else {
-                        temp1 += std::to_string(ItemDefs[i].pMonths);
+                        temp1 += std::to_string(Game::ItemDefs[i].pMonths);
                         temp1 += " man-months";
                     }
                 }
@@ -1650,7 +1650,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     f->DiscoverItem(i, 1, 1);
                 }
             }
-            if (resource && (ItemDefs[i].type & IT_ADVANCED)) {
+            if (resource && (Game::ItemDefs[i].type & IT_ADVANCED)) {
                 if (comma) {
                     if (last == i) {
                         if (comma > 1) temp += ",";
@@ -1660,7 +1660,7 @@ const std::string ShowSkill::Report(Faction *f) const
                     }
                 }
                 comma++;
-                temp += std::string(illusion?"illusory ":"") + ItemDefs[i].names;
+                temp += std::string(illusion?"illusory ":"") + Game::ItemDefs[i].names;
             }
         }
     }
@@ -1688,11 +1688,11 @@ const std::string ShowSkill::Report(Faction *f) const
         if (ObjectDefs[i].flags & ObjectType::DISABLED) continue;
         if (ObjectDefs[i].item == -1) continue;
         if (ObjectDefs[i].item != I_WOOD_OR_STONE &&
-                (ItemDefs[ObjectDefs[i].item].flags & ItemType::DISABLED))
+                (Game::ItemDefs[ObjectDefs[i].item].flags & ItemType::DISABLED))
             continue;
         if (ObjectDefs[i].item == I_WOOD_OR_STONE &&
-                (ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
-                (ItemDefs[I_STONE].flags & ItemType::DISABLED))
+                (Game::ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
+                (Game::ItemDefs[I_STONE].flags & ItemType::DISABLED))
             continue;
         std::string skname = SkillDefs[skill].abbr;
         if (skname == ObjectDefs[i].skill && ObjectDefs[i].level == level) {
@@ -1724,30 +1724,30 @@ const std::string ShowSkill::Report(Faction *f) const
             temp2 += std::to_string(ObjectDefs[i].cost);
             temp2 += " ";
             if (ObjectDefs[i].item == I_WOOD_OR_STONE) {
-                if (ItemDefs[I_WOOD].flags & ItemType::DISABLED) {
-                    temp2 += ItemDefs[I_STONE].name;
+                if (Game::ItemDefs[I_WOOD].flags & ItemType::DISABLED) {
+                    temp2 += Game::ItemDefs[I_STONE].name;
                     temp2 += " [";
-                    temp2 += ItemDefs[I_STONE].abr;
+                    temp2 += Game::ItemDefs[I_STONE].abr;
                     temp2 += "]";
-                } else if (ItemDefs[I_STONE].flags & ItemType::DISABLED) {
-                    temp2 += ItemDefs[I_WOOD].name;
+                } else if (Game::ItemDefs[I_STONE].flags & ItemType::DISABLED) {
+                    temp2 += Game::ItemDefs[I_WOOD].name;
                     temp2 += " [";
-                    temp2 += ItemDefs[I_WOOD].abr;
+                    temp2 += Game::ItemDefs[I_WOOD].abr;
                     temp2 += "]";
                 } else {
-                    temp2 += ItemDefs[I_WOOD].name;
+                    temp2 += Game::ItemDefs[I_WOOD].name;
                     temp2 += " [";
-                    temp2 += ItemDefs[I_WOOD].abr;
+                    temp2 += Game::ItemDefs[I_WOOD].abr;
                     temp2 += "] or ";
-                    temp2 += ItemDefs[I_STONE].name;
+                    temp2 += Game::ItemDefs[I_STONE].name;
                     temp2 += " [";
-                    temp2 += ItemDefs[I_STONE].abr;
+                    temp2 += Game::ItemDefs[I_STONE].abr;
                     temp2 += "]";
                 }
             } else {
-                temp2 += ItemDefs[ObjectDefs[i].item].name;
+                temp2 += Game::ItemDefs[ObjectDefs[i].item].name;
                     temp2 += " [";
-                    temp2 += ItemDefs[ObjectDefs[i].item].abr;
+                    temp2 += Game::ItemDefs[ObjectDefs[i].item].abr;
                     temp2 += "]";
             }
             if (f) {

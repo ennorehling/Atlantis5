@@ -138,14 +138,14 @@ int Army::CheckSpecialTarget(char const *special,int tar)
         // All illusions are of type monster, so lets make sure we get it
         // right.  If we ever have other types of illusions, we can change
         // this.
-        if (!(ItemDefs[soldiers[tar]->race].type & IT_MONSTER))
+        if (!(Game::ItemDefs[soldiers[tar]->race].type & IT_MONSTER))
             return 0;
-        if (!(ItemDefs[soldiers[tar]->race].type & IT_ILLUSION))
+        if (!(Game::ItemDefs[soldiers[tar]->race].type & IT_ILLUSION))
             return 0;
     }
 
     if (spd.targflags & SpecialType::HIT_NOMONSTER) {
-        if (ItemDefs[soldiers[tar]->race].type & IT_MONSTER)
+        if (Game::ItemDefs[soldiers[tar]->race].type & IT_MONSTER)
             return 0;
     }
     return 1;

@@ -144,9 +144,6 @@ class ItemType
         int minGrant, maxGrant;
 };
 
-extern std::vector<ItemType> ItemDefs;
-
-
 enum Ethnicity {
     NONE,
     VIKING,

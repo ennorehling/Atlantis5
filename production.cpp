@@ -24,12 +24,12 @@ Production::Production(int it, int maxamt)
         amount += rng::get_random(maxamt);
     baseamount = amount;
     productivity = 10;
-    skill = lookup_skill(ItemDefs[it].pSkill);
+    skill = lookup_skill(Game::ItemDefs[it].pSkill);
 }
 
 void Production::write_out(ostream& f)
 {
-    f << (itemtype == -1 ? "NO_ITEM" : ItemDefs[itemtype].abr) << '\n';
+    f << (itemtype == -1 ? "NO_ITEM" : Game::ItemDefs[itemtype].abr) << '\n';
     f << amount << '\n';
     f << baseamount << '\n';
     if (itemtype == I_SILVER) {
@@ -51,7 +51,7 @@ void Production::read_in(istream& f)
     if (itemtype == I_SILVER)
         f >> ws >> temp;
     else
-        temp = ItemDefs[itemtype].pSkill;
+        temp = Game::ItemDefs[itemtype].pSkill;
 
     skill = lookup_skill(temp);
 

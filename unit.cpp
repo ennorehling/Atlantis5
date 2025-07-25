@@ -150,11 +150,11 @@ void Unit::Writeout(ostream& f)
     f << guard << '\n';
     f << reveal << '\n';
     f << free << '\n';
-    f << (readyItem != -1 ? ItemDefs[readyItem].abr : "NO_ITEM") << '\n';
+    f << (readyItem != -1 ? Game::ItemDefs[readyItem].abr : "NO_ITEM") << '\n';
 
     for (int i = 0; i < MAX_READY; ++i) {
-        f << (readyWeapon[i] != -1 ? ItemDefs[readyWeapon[i]].abr : "NO_ITEM") << '\n';
-        f << (readyArmor[i] != -1 ? ItemDefs[readyArmor[i]].abr : "NO_ITEM") << '\n';
+        f << (readyWeapon[i] != -1 ? Game::ItemDefs[readyWeapon[i]].abr : "NO_ITEM") << '\n';
+        f << (readyArmor[i] != -1 ? Game::ItemDefs[readyArmor[i]].abr : "NO_ITEM") << '\n';
     }
 
     f << flags << '\n';
@@ -332,11 +332,11 @@ int Unit::CanGetSpoil(Item *i)
     int weight, load, capacity;
 
     if (!i) return 0;
-    if (ItemDefs[i->type].type & IT_SHIP) {
+    if (Game::ItemDefs[i->type].type & IT_SHIP) {
         // Don't pick up an incomplete ship if we already have one
         if (items.GetNum(i->type) > 0) return 0;
     }
-    weight = ItemDefs[i->type].weight;
+    weight = Game::ItemDefs[i->type].weight;
     if (!weight) return 1; // any unit can carry 0 weight spoils
 
     if (flags & FLAG_NOSPOILS)
@@ -345,31 +345,31 @@ int Unit::CanGetSpoil(Item *i)
     load = items.Weight();
 
     if (flags & FLAG_FLYSPOILS) {
-        capacity = ItemDefs[i->type].fly;
+        capacity = Game::ItemDefs[i->type].fly;
         if (FlyingCapacity() + capacity < load + weight)
             return 0;
     }
 
     if (flags & FLAG_RIDESPOILS) {
-        capacity = ItemDefs[i->type].ride;
+        capacity = Game::ItemDefs[i->type].ride;
         if (RidingCapacity() + capacity < load + weight)
             return 0;
     }
 
     if (flags & FLAG_WALKSPOILS) {
-        capacity = ItemDefs[i->type].walk;
-        if (ItemDefs[i->type].hitchItem) {
-            if (items.GetNum(ItemDefs[i->type].hitchItem) >
+        capacity = Game::ItemDefs[i->type].walk;
+        if (Game::ItemDefs[i->type].hitchItem) {
+            if (items.GetNum(Game::ItemDefs[i->type].hitchItem) >
                     items.GetNum(i->type))
-                capacity = ItemDefs[i->type].hitchwalk;
+                capacity = Game::ItemDefs[i->type].hitchwalk;
         }
         if (WalkingCapacity() + capacity < load + weight)
             return 0;
     }
 
     if (flags & FLAG_SWIMSPOILS) {
-        capacity = ItemDefs[i->type].swim;
-        if (ItemDefs[i->type].type & IT_SHIP)
+        capacity = Game::ItemDefs[i->type].swim;
+        if (Game::ItemDefs[i->type].type & IT_SHIP)
             capacity = 0;
         if (SwimmingCapacity() + capacity < load + weight)
             return 0;
@@ -538,7 +538,7 @@ void Unit::build_json_report(
     bool cannot_stealth = false;
 
     for(auto it : items) {
-        if (ItemDefs[it->type].flags & ItemType::NOSTEALTH) cannot_stealth = true;
+        if (Game::ItemDefs[it->type].flags & ItemType::NOSTEALTH) cannot_stealth = true;
     }
 
     if(!my_unit) {
@@ -634,9 +634,9 @@ void Unit::build_json_report(
             if (readyWeapon[i] != -1) {
                 // TODO: go back and clean this to report items better.
                 j["readied"]["weapons"].push_back({
-                    { "name", ItemDefs[readyWeapon[i]].name },
-                    { "tag", ItemDefs[readyWeapon[i]].abr },
-                    { "plural", ItemDefs[readyWeapon[i]].names }
+                    { "name", Game::ItemDefs[readyWeapon[i]].name },
+                    { "tag", Game::ItemDefs[readyWeapon[i]].abr },
+                    { "plural", Game::ItemDefs[readyWeapon[i]].names }
                 });
             }
         }
@@ -644,15 +644,15 @@ void Unit::build_json_report(
         for (auto i = 0; i < MAX_READY; ++i) {
             if (readyArmor[i] != -1) {
                 j["readied"]["armor"].push_back({
-                    { "name", ItemDefs[readyArmor[i]].name },
-                    { "tag", ItemDefs[readyArmor[i]].abr },
-                    { "plural", ItemDefs[readyArmor[i]].names }
+                    { "name", Game::ItemDefs[readyArmor[i]].name },
+                    { "tag", Game::ItemDefs[readyArmor[i]].abr },
+                    { "plural", Game::ItemDefs[readyArmor[i]].names }
                 });
             }
         }
 
         if (readyItem != -1) {
-            j["readied"]["item"] = { { "name", ItemDefs[readyItem].name }, { "tag", ItemDefs[readyItem].abr } };
+            j["readied"]["item"] = { { "name", Game::ItemDefs[readyItem].name }, { "tag", Game::ItemDefs[readyItem].abr } };
         }
 
         // this is just a list of strings, so we can just copy it over
@@ -677,7 +677,7 @@ void Unit::build_json_report(
         for(auto item : items) {
             if (item->checked) continue;
 
-            ItemType def = ItemDefs[item->type];
+            ItemType def = Game::ItemDefs[item->type];
             bool combat_item = (def.type & (IT_WEAPON | IT_BATTLE | IT_ARMOR | IT_MAGIC));
             bool item_reported_in_other_phase = (
                 (def.type & (IT_WEAPON | IT_BATTLE | IT_ARMOR | IT_MAGIC | IT_MOUNT | IT_MAN | IT_MONSTER)) ||
@@ -788,7 +788,7 @@ void Unit::DefaultOrders(Object *obj)
 
             int aggression = 0;
             for(auto it : items) {
-                ItemType &itemType = ItemDefs[it->type];
+                ItemType &itemType = Game::ItemDefs[it->type];
 
                 if (!(itemType.type & IT_MONSTER)) {
                     continue;
@@ -927,7 +927,7 @@ void Unit::PostTurn(ARegion *r)
     if (type == U_WMON) {
         for(auto it = items.begin(); it != items.end(); ) {
             Item *item = *it;
-            if (!(ItemDefs[item->type].type & IT_MONSTER)) {
+            if (!(Game::ItemDefs[item->type].type & IT_MONSTER)) {
                 it = items.erase(it);
                 delete item;
                 continue;
@@ -969,7 +969,7 @@ int Unit::IsAlive()
 
 void Unit::SetMen(int t, int n)
 {
-    if (ItemDefs[t].type & IT_MAN) {
+    if (Game::ItemDefs[t].type & IT_MAN) {
         int oldmen = GetMen();
         items.SetNum(t, n);
         int newmen = GetMen();
@@ -991,7 +991,7 @@ int Unit::GetMons()
 {
     int n=0;
     for(auto i : items) {
-        if (ItemDefs[i->type].type & IT_MONSTER) {
+        if (Game::ItemDefs[i->type].type & IT_MONSTER) {
             n += i->num;
         }
     }
@@ -1002,7 +1002,7 @@ int Unit::GetMen()
 {
     int n = 0;
     for(auto i : items) {
-        if (ItemDefs[i->type].type & IT_MAN) {
+        if (Game::ItemDefs[i->type].type & IT_MAN) {
             n += i->num;
         }
     }
@@ -1013,7 +1013,7 @@ int Unit::GetLeaders()
 {
     int n = 0;
     for(auto i : items) {
-        if (ItemDefs[i->type].type & IT_LEADER) {
+        if (Game::ItemDefs[i->type].type & IT_LEADER) {
             n += i->num;
         }
     }
@@ -1044,7 +1044,7 @@ int Unit::GetSharedNum(int item)
 {
     int count = 0;
 
-    if (ItemDefs[item].type & IT_MAN) return items.GetNum(item);
+    if (Game::ItemDefs[item].type & IT_MAN) return items.GetNum(item);
 
     for(const auto obj : object->region->objects) {
         for(const auto u : obj->units) {
@@ -1097,11 +1097,11 @@ int Unit::GetAttackRiding()
     int riding = 0;
     if (type == U_WMON) {
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MONSTER) {
-                if (ItemDefs[i->type].fly) {
+            if (Game::ItemDefs[i->type].type & IT_MONSTER) {
+                if (Game::ItemDefs[i->type].fly) {
                     return 5;
                 }
-                if (ItemDefs[i->type].ride) riding = 3;
+                if (Game::ItemDefs[i->type].ride) riding = 3;
             }
         }
         return riding;
@@ -1109,14 +1109,14 @@ int Unit::GetAttackRiding()
         int attackriding = 0;
         int minweight = 10000;
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MAN)
-                if (ItemDefs[i->type].weight < minweight)
-                    minweight = ItemDefs[i->type].weight;
+            if (Game::ItemDefs[i->type].type & IT_MAN)
+                if (Game::ItemDefs[i->type].weight < minweight)
+                    minweight = Game::ItemDefs[i->type].weight;
         }
         for(auto i : items) {
             int skill, maxBonus;
-            if (!(ItemDefs[i->type].type & IT_MOUNT)) continue;
-            auto mountType = find_mount(ItemDefs[i->type].abr);
+            if (!(Game::ItemDefs[i->type].type & IT_MOUNT)) continue;
+            auto mountType = find_mount(Game::ItemDefs[i->type].abr);
             if (!mountType) continue;
             auto mount = mountType.value().get();
             maxBonus = mount.maxBonus;
@@ -1140,9 +1140,9 @@ int Unit::GetAttackRiding()
             } else {
                 riding = GetSkill(skill);
                 if (
-                    (ItemDefs[i->type].type & IT_MAN) ||
-                    (ItemDefs[i->type].fly - ItemDefs[i->type].weight >= minweight) ||
-                    (ItemDefs[i->type].ride - ItemDefs[i->type].weight >= minweight)
+                    (Game::ItemDefs[i->type].type & IT_MAN) ||
+                    (Game::ItemDefs[i->type].fly - Game::ItemDefs[i->type].weight >= minweight) ||
+                    (Game::ItemDefs[i->type].ride - Game::ItemDefs[i->type].weight >= minweight)
                 ) {
                     if (riding > maxBonus) riding = maxBonus;
                     if (attackriding < riding) attackriding = riding;
@@ -1164,8 +1164,8 @@ int Unit::GetDefenseRiding()
         riding = 5;
         // Limit riding to the slowest flying mount
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MOUNT && ItemDefs[i->type].fly) {
-                auto mountType = find_mount(ItemDefs[i->type].abr);
+            if (Game::ItemDefs[i->type].type & IT_MOUNT && Game::ItemDefs[i->type].fly) {
+                auto mountType = find_mount(Game::ItemDefs[i->type].abr);
                 if (mountType) {
                     auto mount = mountType.value().get();
                     // If we wanted to apply terrain restrictions,
@@ -1179,8 +1179,8 @@ int Unit::GetDefenseRiding()
         riding = 3;
         // Limit riding to the slowest riding mount
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MOUNT && ItemDefs[i->type].ride) {
-                auto mountType = find_mount(ItemDefs[i->type].abr);
+            if (Game::ItemDefs[i->type].type & IT_MOUNT && Game::ItemDefs[i->type].ride) {
+                auto mountType = find_mount(Game::ItemDefs[i->type].abr);
                 if (mountType) {
                     auto mount = mountType.value().get();
                     // If we wanted to apply terrain restrictions, we'd also do it here
@@ -1219,19 +1219,19 @@ int Unit::GetAvailSkill(int sk)
     int retval = GetRealSkill(sk);
 
     for(auto i : items) {
-        if (ItemDefs[i->type].flags & ItemType::DISABLED) continue;
-        if (ItemDefs[i->type].type & IT_MAGEONLY && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
+        if (Game::ItemDefs[i->type].flags & ItemType::DISABLED) continue;
+        if (Game::ItemDefs[i->type].type & IT_MAGEONLY && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
             continue;
         if ((SkillDefs[sk].flags & SkillType::MAGIC) && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
             continue;
         if (i->num < GetMen()) continue;
-        if (ItemDefs[i->type].grantSkill && lookup_skill(ItemDefs[i->type].grantSkill) == sk) {
+        if (Game::ItemDefs[i->type].grantSkill && lookup_skill(Game::ItemDefs[i->type].grantSkill) == sk) {
             int grant = 0;
-            for (unsigned j = 0; j < sizeof(ItemDefs[0].fromSkills) / sizeof(ItemDefs[0].fromSkills[0]); j++) {
-                if (ItemDefs[i->type].fromSkills[j]) {
+            for (unsigned j = 0; j < sizeof(Game::ItemDefs[0].fromSkills) / sizeof(Game::ItemDefs[0].fromSkills[0]); j++) {
+                if (Game::ItemDefs[i->type].fromSkills[j]) {
                     int fromSkill;
 
-                    fromSkill = lookup_skill(ItemDefs[i->type].fromSkills[j]);
+                    fromSkill = lookup_skill(Game::ItemDefs[i->type].fromSkills[j]);
                     if (fromSkill != -1) {
                         /*
                             Should this use GetRealSkill or GetAvailSkill?
@@ -1242,8 +1242,8 @@ int Unit::GetAvailSkill(int sk)
                     }
                 }
             }
-            if (grant < ItemDefs[i->type].minGrant) grant = ItemDefs[i->type].minGrant;
-            if (grant > ItemDefs[i->type].maxGrant) grant = ItemDefs[i->type].maxGrant;
+            if (grant < Game::ItemDefs[i->type].minGrant) grant = Game::ItemDefs[i->type].minGrant;
+            if (grant > Game::ItemDefs[i->type].maxGrant) grant = Game::ItemDefs[i->type].maxGrant;
 
             if (grant > retval) retval = grant;
         }
@@ -1379,8 +1379,8 @@ int Unit::GetSkillMax(int sk)
     if (SkillDefs[sk].flags & SkillType::DISABLED) return 0;
 
     for(auto i : items) {
-        if (ItemDefs[i->type].flags & ItemType::DISABLED) continue;
-        if (!(ItemDefs[i->type].type & IT_MAN)) continue;
+        if (Game::ItemDefs[i->type].flags & ItemType::DISABLED) continue;
+        if (!(Game::ItemDefs[i->type].type & IT_MAN)) continue;
         int m = SkillMax(SkillDefs[sk].abbr.c_str(), i->type);
         if ((max == 0 && m > max) || (m < max)) max = m;
     }
@@ -1404,18 +1404,18 @@ int Unit::Practice(int sk)
         reqlev = 0;
 
         for(auto it : items) {
-            if (ItemDefs[it->type].flags & ItemType::DISABLED) continue;
-            if (ItemDefs[it->type].type & IT_MAGEONLY && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
+            if (Game::ItemDefs[it->type].flags & ItemType::DISABLED) continue;
+            if (Game::ItemDefs[it->type].type & IT_MAGEONLY && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
                 continue;
             if ((SkillDefs[sk].flags & SkillType::MAGIC) && type != U_MAGE && type != U_APPRENTICE && type != U_GUARDMAGE)
                 continue;
             if (it->num < GetMen()) continue;
-            if (ItemDefs[it->type].grantSkill && lookup_skill(ItemDefs[it->type].grantSkill) == sk) {
-                for (unsigned j = 0; j < sizeof(ItemDefs[0].fromSkills) / sizeof(ItemDefs[0].fromSkills[0]); j++) {
-                    if (ItemDefs[it->type].fromSkills[j]) {
+            if (Game::ItemDefs[it->type].grantSkill && lookup_skill(Game::ItemDefs[it->type].grantSkill) == sk) {
+                for (unsigned j = 0; j < sizeof(Game::ItemDefs[0].fromSkills) / sizeof(Game::ItemDefs[0].fromSkills[0]); j++) {
+                    if (Game::ItemDefs[it->type].fromSkills[j]) {
                         int fromSkill;
 
-                        fromSkill = lookup_skill(ItemDefs[it->type].fromSkills[j]);
+                        fromSkill = lookup_skill(Game::ItemDefs[it->type].fromSkills[j]);
                         if (fromSkill != -1 && GetRealSkill(fromSkill) > reqlev) {
                             reqsk = fromSkill;
                             reqlev = GetRealSkill(fromSkill);
@@ -1579,11 +1579,11 @@ int Unit::MaintCost(ARegionList& regions, ARegion *current_region)
 
     // Check for any items which require item specific maintenance and handling
     for(auto it : items) {
-        if (!(ItemDefs[it->type].flags & ItemType::MAINTENANCE)) continue;
-        int cost = ItemDefs[it->type].baseprice * it->num;
+        if (!(Game::ItemDefs[it->type].flags & ItemType::MAINTENANCE)) continue;
+        int cost = Game::ItemDefs[it->type].baseprice * it->num;
         // Now, do a special check for NO7 victory work based on the flags.  Ideally the structure to seek
         // would be a field on the item, but that would require a ton of changes to all hundreds of item defs.
-        if (ItemDefs[it->type].flags & ItemType::SEEK_ALTAR) {
+        if (Game::ItemDefs[it->type].flags & ItemType::SEEK_ALTAR) {
             // if the unit moved, figure out if it moved toward or away from an altar
             if (initial_region) {
                 // Find the nearest O_RITUAL_ALTAR from the start of turn location (initial_region)
@@ -1628,12 +1628,12 @@ void Unit::Short(int needed, int hunger)
     }
 
     for (i = 0; i<= NITEMS; i++) {
-        if (!(ItemDefs[ i ].type & IT_MAN)) {
+        if (!(Game::ItemDefs[ i ].type & IT_MAN)) {
             // Only men need sustenance.
             continue;
         }
 
-        if (ItemDefs[i].type & IT_LEADER) {
+        if (Game::ItemDefs[i].type & IT_LEADER) {
             // Don't starve leaders just yet.
             continue;
         }
@@ -1661,12 +1661,12 @@ void Unit::Short(int needed, int hunger)
 
     // Now starve leaders
     for (int i = 0; i<= NITEMS; i++) {
-        if (!(ItemDefs[ i ].type & IT_MAN)) {
+        if (!(Game::ItemDefs[ i ].type & IT_MAN)) {
             // Only men need sustenance.
             continue;
         }
 
-        if (!(ItemDefs[i].type & IT_LEADER)) {
+        if (!(Game::ItemDefs[i].type & IT_LEADER)) {
             // now we're doing leaders
             continue;
         }
@@ -1704,8 +1704,8 @@ int Unit::FlyingCapacity()
     int cap = 0;
     for(auto i : items) {
         // except ship items
-        if (ItemDefs[i->type].type & IT_SHIP) continue;
-        cap += ItemDefs[i->type].fly * i->num;
+        if (Game::ItemDefs[i->type].type & IT_SHIP) continue;
+        cap += Game::ItemDefs[i->type].fly * i->num;
     }
 
     return cap;
@@ -1715,7 +1715,7 @@ int Unit::RidingCapacity()
 {
     int cap = 0;
     for(auto i : items) {
-        cap += ItemDefs[i->type].ride * i->num;
+        cap += Game::ItemDefs[i->type].ride * i->num;
     }
 
     return cap;
@@ -1726,8 +1726,8 @@ int Unit::SwimmingCapacity()
     int cap = 0;
     for(auto i : items) {
         // except ship items
-        if (ItemDefs[i->type].type & IT_SHIP) continue;
-        cap += ItemDefs[i->type].swim * i->num;
+        if (Game::ItemDefs[i->type].type & IT_SHIP) continue;
+        cap += Game::ItemDefs[i->type].swim * i->num;
     }
 
     return cap;
@@ -1737,14 +1737,14 @@ int Unit::WalkingCapacity()
 {
     int cap = 0;
     for(auto i : items) {
-        cap += ItemDefs[i->type].walk * i->num;
-        if (ItemDefs[i->type].hitchItem != -1) {
-            int hitch = ItemDefs[i->type].hitchItem;
-            if (!(ItemDefs[hitch].flags & ItemType::DISABLED)) {
+        cap += Game::ItemDefs[i->type].walk * i->num;
+        if (Game::ItemDefs[i->type].hitchItem != -1) {
+            int hitch = Game::ItemDefs[i->type].hitchItem;
+            if (!(Game::ItemDefs[hitch].flags & ItemType::DISABLED)) {
                 int hitches = items.GetNum(hitch);
                 int hitched = i->num;
                 if (hitched > hitches) hitched = hitches;
-                cap += hitched * ItemDefs[i->type].hitchwalk;
+                cap += hitched * Game::ItemDefs[i->type].hitchwalk;
             }
         }
     }
@@ -1822,24 +1822,24 @@ static int ContributesToMovement(int movetype, int item)
 {
     switch(movetype) {
         case M_WALK:
-            if (ItemDefs[item].walk > 0)
-                return ItemDefs[item].walk;
+            if (Game::ItemDefs[item].walk > 0)
+                return Game::ItemDefs[item].walk;
             break;
         case M_RIDE:
-            if (ItemDefs[item].ride > 0)
-                return ItemDefs[item].ride;
+            if (Game::ItemDefs[item].ride > 0)
+                return Game::ItemDefs[item].ride;
             break;
         case M_FLY:
-            if (ItemDefs[item].fly > 0)
-                return ItemDefs[item].fly;
+            if (Game::ItemDefs[item].fly > 0)
+                return Game::ItemDefs[item].fly;
             break;
         case M_SWIM:
             // incomplete ship items do have a "swimming"
             // capacity given, but don't help us to swim
-            if (ItemDefs[item].type & IT_SHIP)
+            if (Game::ItemDefs[item].type & IT_SHIP)
                 return 0;
-            if (ItemDefs[item].swim > 0)
-                return ItemDefs[item].swim;
+            if (Game::ItemDefs[item].swim > 0)
+                return Game::ItemDefs[item].swim;
             break;
     }
 
@@ -1857,20 +1857,20 @@ int Unit::CalcMovePoints(ARegion *r)
 
     for(auto i : items) {
         if (ContributesToMovement(movetype, i->type)) {
-            if (ItemDefs[i->type].speed > speed)
-                speed = ItemDefs[i->type].speed;
+            if (Game::ItemDefs[i->type].speed > speed)
+                speed = Game::ItemDefs[i->type].speed;
         }
     }
     weight = items.Weight();
     while (weight > 0 && speed > 0) {
         for(auto i : items) {
             cap = ContributesToMovement(movetype, i->type);
-            if (ItemDefs[i->type].speed == speed) {
+            if (Game::ItemDefs[i->type].speed == speed) {
                 if (cap > 0) weight -= cap * i->num;
-                else if (ItemDefs[i->type].hitchItem != -1) {
-                    hitches = items.GetNum(ItemDefs[i->type].hitchItem);
+                else if (Game::ItemDefs[i->type].hitchItem != -1) {
+                    hitches = items.GetNum(Game::ItemDefs[i->type].hitchItem);
                     if (i->num < hitches) hitches = i->num;
-                    weight -= hitches * ItemDefs[i->type].hitchwalk;
+                    weight -= hitches * Game::ItemDefs[i->type].hitchwalk;
                 }
             }
         }
@@ -1966,8 +1966,8 @@ int Unit::Hostile()
     if (type != U_WMON) return 0;
     int retval = 0;
     for(auto i : items) {
-        if (ItemDefs[i->type].type & IT_MONSTER) {
-            auto monster = find_monster(ItemDefs[i->type].abr, (ItemDefs[i->type].type & IT_ILLUSION))->get();
+        if (Game::ItemDefs[i->type].type & IT_MONSTER) {
+            auto monster = find_monster(Game::ItemDefs[i->type].abr, (Game::ItemDefs[i->type].type & IT_ILLUSION))->get();
             int hos = monster.hostile;
             if (hos > retval) retval = hos;
         }
@@ -2013,9 +2013,9 @@ int Unit::Taxers(int numtaxers)
     int numArmor = 0;
 
     for(auto item : items) {
-        auto pBat = find_battle_item(ItemDefs[item->type].abr);
+        auto pBat = find_battle_item(Game::ItemDefs[item->type].abr);
 
-        if ((ItemDefs[item->type].type & IT_BATTLE) && pBat && (pBat->get().flags & BattleItemType::SPECIAL)) {
+        if ((Game::ItemDefs[item->type].type & IT_BATTLE) && pBat && (pBat->get().flags & BattleItemType::SPECIAL)) {
             // Only consider offensive items
             if (
                 (Globals->WHO_CAN_TAX & GameDefs::TAX_USABLE_BATTLE_ITEM) &&
@@ -2031,8 +2031,8 @@ int Unit::Taxers(int numtaxers)
             }
         }
 
-        if (ItemDefs[item->type].type & IT_WEAPON) {
-            auto weapon = find_weapon(ItemDefs[item->type].abr)->get();
+        if (Game::ItemDefs[item->type].type & IT_WEAPON) {
+            auto weapon = find_weapon(Game::ItemDefs[item->type].abr)->get();
             int num = item->num;
             int basesk = 0;
             int sk = lookup_skill(weapon.baseSkill);
@@ -2066,8 +2066,8 @@ int Unit::Taxers(int numtaxers)
             }
         }
 
-        if (ItemDefs[item->type].type & IT_MOUNT) {
-            auto pm = find_mount(ItemDefs[item->type].abr).value().get();
+        if (Game::ItemDefs[item->type].type & IT_MOUNT) {
+            auto pm = find_mount(Game::ItemDefs[item->type].abr).value().get();
             if (pm.skill) {
                 int sk = lookup_skill(pm.skill);
                 if (pm.minBonus <= GetSkill(sk))
@@ -2077,12 +2077,12 @@ int Unit::Taxers(int numtaxers)
             numMounts += item->num;
         }
 
-        if (ItemDefs[item->type].type & IT_MONSTER) {
-            if (ItemDefs[item->type].type & IT_ILLUSION) illusions += item->num;
+        if (Game::ItemDefs[item->type].type & IT_MONSTER) {
+            if (Game::ItemDefs[item->type].type & IT_ILLUSION) illusions += item->num;
             else creatures += item->num;
         }
 
-        if (ItemDefs[item->type].type & IT_ARMOR) {
+        if (Game::ItemDefs[item->type].type & IT_ARMOR) {
             numArmor += item->num;
         }
     }
@@ -2302,9 +2302,9 @@ int Unit::get_battle_item(const std::string &item)
     int num = items.GetNum(item_num);
     if (num < 1) return -1;
 
-    if (!(ItemDefs[item_num].type & IT_BATTLE)) return -1;
+    if (!(Game::ItemDefs[item_num].type & IT_BATTLE)) return -1;
     // Exclude weapons.  They will be handled later.
-    if (ItemDefs[item_num].type & IT_WEAPON) return -1;
+    if (Game::ItemDefs[item_num].type & IT_WEAPON) return -1;
     items.SetNum(item_num, num - 1);
     return item_num;
 }
@@ -2312,7 +2312,7 @@ int Unit::get_battle_item(const std::string &item)
 int Unit::get_armor(const std::string &item, int ass)
 {
     int item_num = lookup_item(item);
-    auto armor_type = find_armor(ItemDefs[item_num].abr);
+    auto armor_type = find_armor(Game::ItemDefs[item_num].abr);
 
     if (!armor_type) return -1;
     if (ass && !(armor_type->get().flags & ArmorType::USEINASSASSINATE)) return -1;
@@ -2320,7 +2320,7 @@ int Unit::get_armor(const std::string &item, int ass)
     int num = items.GetNum(item_num);
     if (num < 1) return -1;
 
-    if (!(ItemDefs[item_num].type & IT_ARMOR)) return -1;
+    if (!(Game::ItemDefs[item_num].type & IT_ARMOR)) return -1;
     items.SetNum(item_num, num - 1);
     return item_num;
 }
@@ -2333,7 +2333,7 @@ int Unit::get_mount(const std::string &item, int canFly, int canRide, int &bonus
     if (!canFly && !canRide) return -1;
 
     int item_num = lookup_item(item);
-    auto pMnt = find_mount(ItemDefs[item_num].abr).value().get();
+    auto pMnt = find_mount(Game::ItemDefs[item_num].abr).value().get();
 
     int num = items.GetNum(item_num);
     if (num < 1) return -1;
@@ -2341,11 +2341,11 @@ int Unit::get_mount(const std::string &item, int canFly, int canRide, int &bonus
     if (canFly) {
         // If the mount cannot fly, and the region doesn't allow
         // riding mounts, bail
-        if (!ItemDefs[item_num].fly && !canRide) return -1;
+        if (!Game::ItemDefs[item_num].fly && !canRide) return -1;
     } else {
         // This region allows riding mounts, so if the mount
         // can not carry at a riding level, bail
-        if (!ItemDefs[item_num].ride) return -1;
+        if (!Game::ItemDefs[item_num].ride) return -1;
     }
 
     if (pMnt.skill) {
@@ -2361,7 +2361,7 @@ int Unit::get_mount(const std::string &item, int canFly, int canRide, int &bonus
         // If the mount can fly and the terrain doesn't allow
         // flying mounts, limit the bonus to the maximum hampered
         // bonus allowed by the mount
-        if (ItemDefs[item_num].fly && !canFly) {
+        if (Game::ItemDefs[item_num].fly && !canFly) {
             if (bonus > pMnt.maxHamperedBonus)
                 bonus = pMnt.maxHamperedBonus;
         }
@@ -2372,7 +2372,7 @@ int Unit::get_mount(const std::string &item, int canFly, int canRide, int &bonus
 
     // Remove the mount from the unit to attach it to the soldier
     // UNLESS it IS the soldier (looking at you, Centaurs)
-    if (!(ItemDefs[item_num].type & IT_MAN))
+    if (!(Game::ItemDefs[item_num].type & IT_MAN))
         items.SetNum(item_num, num - 1);
     return item_num;
 }
@@ -2382,7 +2382,7 @@ int Unit::get_weapon(
 )
 {
     int item_num = lookup_item(item);
-    auto weapontype = find_weapon(ItemDefs[item_num].abr);
+    auto weapontype = find_weapon(Game::ItemDefs[item_num].abr);
 
     if (!weapontype) return -1;
     auto weapon = weapontype->get();
@@ -2390,7 +2390,7 @@ int Unit::get_weapon(
     int num = items.GetNum(item_num);
     if (num < 1) return -1;
 
-    if (!(ItemDefs[item_num].type & IT_WEAPON)) return -1;
+    if (!(Game::ItemDefs[item_num].type & IT_WEAPON)) return -1;
 
     attackBonus = 0;
     defenseBonus = 0;
@@ -2456,7 +2456,7 @@ void Unit::DiscardUnfinishedShips() {
     int discard = 0;
     // remove all unfinished ship-type items
     for (int i=0; i<NITEMS; i++) {
-        if (ItemDefs[i].type & IT_SHIP) {
+        if (Game::ItemDefs[i].type & IT_SHIP) {
             if (items.GetNum(i) > 0) discard = 1;
             items.SetNum(i,0);
         }
@@ -2485,8 +2485,8 @@ int Unit::GetAttribute(char const *attrib)
 
     if (ap->get().flags & AttribModType::CHECK_MONSTERS) {
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MONSTER) {
-                auto monster = find_monster(ItemDefs[i->type].abr, (ItemDefs[i->type].type & IT_ILLUSION))->get();
+            if (Game::ItemDefs[i->type].type & IT_MONSTER) {
+                auto monster = find_monster(Game::ItemDefs[i->type].abr, (Game::ItemDefs[i->type].type & IT_ILLUSION))->get();
                 int val = 0;
                 temp = attrib;
                 if (temp == "observation") val = monster.obs;
@@ -2518,7 +2518,7 @@ int Unit::GetAttribute(char const *attrib)
             val = 0;
             int item = lookup_item(ap->get().mods[index].ident);
             if (item != -1) {
-                if (ItemDefs[item].type & IT_MAGEONLY
+                if (Game::ItemDefs[item].type & IT_MAGEONLY
                     && type != U_MAGE
                     && type != U_APPRENTICE
                     && type != U_GUARDMAGE) {
@@ -2585,12 +2585,12 @@ int Unit::PracticeAttribute(char const *attrib)
 int Unit::GetProductionBonus(int item)
 {
     int bonus = 0;
-    if (ItemDefs[item].mult_item != -1)
-        bonus = items.GetNum(ItemDefs[item].mult_item);
+    if (Game::ItemDefs[item].mult_item != -1)
+        bonus = items.GetNum(Game::ItemDefs[item].mult_item);
     else
         bonus = GetMen();
     if (bonus > GetMen()) bonus = GetMen();
-    return bonus * ItemDefs[item].mult_val;
+    return bonus * Game::ItemDefs[item].mult_val;
 }
 
 int Unit::SkillLevels()
@@ -2653,7 +2653,7 @@ void Unit::SkillStarvation()
     }
     if (!count) {
         for(auto i : items) {
-            if (ItemDefs[i->type].type & IT_MAN) {
+            if (Game::ItemDefs[i->type].type & IT_MAN) {
                 count += items.GetNum(i->type);
                 items.SetNum(i->type, 0);
             }

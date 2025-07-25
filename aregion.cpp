@@ -710,7 +710,7 @@ void ARegion::Kill(Unit *u)
     if (first) {
         // give u's stuff to first
         for(auto i : u->items) {
-            if (ItemDefs[i->type].type & IT_SHIP && first->items.GetNum(i->type) > 0) {
+            if (Game::ItemDefs[i->type].type & IT_SHIP && first->items.GetNum(i->type) > 0) {
                 if (first->items.GetNum(i->type) > i->num)
                     first->items.SetNum(i->type, i->num);
                 continue;
@@ -894,7 +894,7 @@ void ARegion::Writeout(std::ostream& f)
     f << gate << '\n';
     if (gate > 0) f << gatemonth << '\n';
 
-    f << (race != -1 ? ItemDefs[race].abr : "NO_RACE") << '\n';
+    f << (race != -1 ? Game::ItemDefs[race].abr : "NO_RACE") << '\n';
     f << population << '\n';
     f << basepopulation << '\n';
     f << wages << '\n';
@@ -1020,8 +1020,8 @@ int ARegion::CanMakeAdv(Faction *fac, int item)
     if (Globals->IMPROVED_FARSIGHT) {
         for(const auto f : farsees) {
             if (f && f->faction == fac && f->unit) {
-                sk = lookup_skill(ItemDefs[item].pSkill);
-                if (f->unit->GetSkill(sk) >= ItemDefs[item].pLevel)
+                sk = lookup_skill(Game::ItemDefs[item].pSkill);
+                if (f->unit->GetSkill(sk) >= Game::ItemDefs[item].pLevel)
                     return 1;
             }
         }
@@ -1031,8 +1031,8 @@ int ARegion::CanMakeAdv(Faction *fac, int item)
             (Globals->TRANSIT_REPORT & GameDefs::REPORT_SHOW_RESOURCES)) {
         for(const auto f : passers) {
             if (f && f->faction == fac && f->unit) {
-                sk = lookup_skill(ItemDefs[item].pSkill);
-                if (f->unit->GetSkill(sk) >= ItemDefs[item].pLevel)
+                sk = lookup_skill(Game::ItemDefs[item].pSkill);
+                if (f->unit->GetSkill(sk) >= Game::ItemDefs[item].pLevel)
                     return 1;
             }
         }
@@ -1041,8 +1041,8 @@ int ARegion::CanMakeAdv(Faction *fac, int item)
     for(const auto o : objects) {
         for(const auto u : o->units) {
             if (u->faction == fac) {
-                sk = lookup_skill(ItemDefs[item].pSkill);
-                if (u->GetSkill(sk) >= ItemDefs[item].pLevel) return 1;
+                sk = lookup_skill(Game::ItemDefs[item].pSkill);
+                if (u->GetSkill(sk) >= Game::ItemDefs[item].pLevel) return 1;
             }
         }
     }
@@ -1109,7 +1109,7 @@ void ARegion::build_json_report(json& j, Faction *fac, int month, ARegionList& r
     if (Population() && (present || farsight || (Globals->TRANSIT_REPORT & GameDefs::REPORT_SHOW_PEASANTS))) {
         j["population"] = { { "amount", Population() } };
         if (Globals->RACES_EXIST) {
-            j["population"]["race"] = ItemDefs[race].names;
+            j["population"]["race"] = Game::ItemDefs[race].names;
         } else {
             j["population"]["race"] = "men";
         }
@@ -1145,7 +1145,7 @@ void ARegion::build_json_report(json& j, Faction *fac, int month, ARegionList& r
         if (!m->amount) continue;
         if (!present && !farsight && !(Globals->TRANSIT_REPORT & GameDefs::REPORT_SHOW_MARKETS)) continue;
 
-        ItemType itemdef = ItemDefs[m->item];
+        ItemType itemdef = Game::ItemDefs[m->item];
         json item = {
             { "name", itemdef.name }, { "plural", itemdef.names }, { "tag", itemdef.abr }, { "price", m->price }
         };
@@ -1153,7 +1153,7 @@ void ARegion::build_json_report(json& j, Faction *fac, int month, ARegionList& r
         else item["unlimited"] = true;
 
         if (m->type == Market::MarketType::M_SELL) {
-            if (ItemDefs[m->item].type & IT_ADVANCED) {
+            if (Game::ItemDefs[m->item].type & IT_ADVANCED) {
                 if (!Globals->MARKETS_SHOW_ADVANCED_ITEMS) {
                     if (!HasItem(fac, m->item)) continue;
                 }
@@ -1173,7 +1173,7 @@ void ARegion::build_json_report(json& j, Faction *fac, int month, ARegionList& r
 
     j["products"] = json::array();
     for (const auto& p : products) {
-        ItemType itemdef = ItemDefs[p->itemtype];
+        ItemType itemdef = Game::ItemDefs[p->itemtype];
         if (p->itemtype == I_SILVER) continue; // wages and entertainment handled seperately.
         // Advanced items have slightly different rules, so call CanMakeAdv (poorly named) to see if we can see them.
         if (itemdef.type & IT_ADVANCED && !(CanMakeAdv(fac, p->itemtype) || fac->is_npc)) continue;
@@ -3081,7 +3081,7 @@ struct River {
 Ethnicity getRegionEtnos(ARegion* reg) {
     Ethnicity etnos = Ethnicity::NONE;
     if (reg->race > 0) {
-        auto man = find_race(ItemDefs[reg->race].abr)->get();
+        auto man = find_race(Game::ItemDefs[reg->race].abr)->get();
         etnos = man.ethnicity;
     }
 
@@ -3781,7 +3781,7 @@ void ARegionList::ResourcesStatistics() {
             continue;
         }
 
-        ItemType& item = ItemDefs[kv.first];
+        ItemType& item = Game::ItemDefs[kv.first];
         logger::write(item.name + " [" + item.abr + "] " + std::to_string(kv.second));
     }
     logger::write("");
@@ -3792,7 +3792,7 @@ void ARegionList::ResourcesStatistics() {
             continue;
         }
 
-        ItemType& item = ItemDefs[kv.first];
+        ItemType& item = Game::ItemDefs[kv.first];
         logger::write(item.name + " [" + item.abr + "] " + std::to_string(kv.second));
     }
     logger::write("");
@@ -3803,7 +3803,7 @@ void ARegionList::ResourcesStatistics() {
             continue;
         }
 
-        ItemType& item = ItemDefs[kv.first];
+        ItemType& item = Game::ItemDefs[kv.first];
         logger::write(item.name + " [" + item.abr + "] " + std::to_string(kv.second));
     }
     logger::write("");

@@ -19,7 +19,7 @@
 // granted skill, granted from array, minGrant, maxGrant
 
 
-std::vector<ItemType> ItemDefs =
+std::vector<ItemType> Game::ItemDefs =
 {
     {"leader", "leaders", "LEAD",
      ItemType::NOTRANSPORT,

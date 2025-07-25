@@ -26,8 +26,8 @@ int parse_object(const parser::token& token, bool match_ships)
     // Check for ship-type items:
     if (match_ships) {
         for (int i = 0; i < NITEMS; i++) {
-            if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-            if (ItemDefs[i].type & IT_SHIP && (token == ItemDefs[i].name || token == ItemDefs[i].abr))
+            if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+            if (Game::ItemDefs[i].type & IT_SHIP && (token == Game::ItemDefs[i].name || token == Game::ItemDefs[i].abr))
                 return -(i + 1);
         }
     }
@@ -267,7 +267,7 @@ void Object::build_json_report(json& j, Faction *fac, int obs, int truesight,
             }
             for(auto ship : ships) {
                 if (ship->type != -1 && ship->num > 0) {
-                    ItemType item_def = ItemDefs[ship->type];
+                    ItemType item_def = Game::ItemDefs[ship->type];
                     if (item_def.flags & ItemType::DISABLED) continue;
                     if (!(item_def.type & IT_SHIP)) continue;
                     container["ships"].push_back(
@@ -288,7 +288,7 @@ void Object::build_json_report(json& j, Faction *fac, int obs, int truesight,
                 }
             }
             if (ob.flags & ObjectType::SACRIFICE && (incomplete < 0)) {
-                ItemType& def = ItemDefs[ob.sacrifice_item];
+                ItemType& def = Game::ItemDefs[ob.sacrifice_item];
                 json item_obj = json{ { "name", def.name }, { "tag", def.abr }, { "plural", def.names } };
                 item_obj["amount"] = -incomplete;
                 container["sacrifice"] = item_obj;
@@ -357,7 +357,7 @@ int Object::CheckShip(int item)
 {
     if (item < 0) return 0;
     if (!IsFleet()) return 0;
-    if (ItemDefs[item].type & IT_SHIP) return 1;
+    if (Game::ItemDefs[item].type & IT_SHIP) return 1;
     return 0;
 }
 
@@ -439,7 +439,7 @@ std::string Object::FleetDefinition()
     int shiptype = -1;
     int num = 0;
     for (int i=0; i<NITEMS; i++) {
-        if (ItemDefs[i].type & IT_SHIP) {
+        if (Game::ItemDefs[i].type & IT_SHIP) {
             int sn = GetNumShips(i);
             if (sn > 0) {
                 num += sn;
@@ -447,7 +447,7 @@ std::string Object::FleetDefinition()
             }
         }
     }
-    if (num == 1) fleet = ItemDefs[shiptype].name;
+    if (num == 1) fleet = Game::ItemDefs[shiptype].name;
     else {
         fleet = ObjectDefs[type].name;
         // report ships:
@@ -455,9 +455,9 @@ std::string Object::FleetDefinition()
             num = GetNumShips(item);
             if (num > 0) {
                 if (num > 1) {
-                    fleet += std::string(", ") + std::to_string(num) + " " + ItemDefs[item].names;
+                    fleet += std::string(", ") + std::to_string(num) + " " + Game::ItemDefs[item].names;
                 } else {
-                    fleet += std::string(", ") + std::to_string(num) + " " +ItemDefs[item].name;
+                    fleet += std::string(", ") + std::to_string(num) + " " +Game::ItemDefs[item].name;
                 }
             }
         }
@@ -479,13 +479,13 @@ int Object::FleetCapacity()
     for (int item=0; item < NITEMS; item++) {
         int num = GetNumShips(item);
         if (num < 1) continue;
-        if (ItemDefs[item].fly > 0) {
-            capacity += num * ItemDefs[item].fly;
+        if (Game::ItemDefs[item].fly > 0) {
+            capacity += num * Game::ItemDefs[item].fly;
         } else {
-            capacity += num * ItemDefs[item].swim;
+            capacity += num * Game::ItemDefs[item].swim;
             flying = 0;
         }
-        int ot = lookup_object(ItemDefs[item].name);
+        int ot = lookup_object(Game::ItemDefs[item].name);
         if (ot > 0) mages += num * ObjectDefs[ot].maxMages;
     }
     return capacity;
@@ -593,7 +593,7 @@ int Object::GetFleetSize()
     int inertia = 0;
     for (int item=0; item<NITEMS; item++) {
         int num = GetNumShips(item);
-        if (num > 0) inertia += num * ItemDefs[item].weight;
+        if (num > 0) inertia += num * Game::ItemDefs[item].weight;
     }
     return (inertia / 50);
 }
@@ -619,16 +619,16 @@ int Object::GetFleetSpeed(int report)
     for (int item = 0; item < NITEMS; item++) {
         int num = GetNumShips(item);
         if (num > 0) {
-            weight += num * ItemDefs[item].weight;
-            if (ItemDefs[item].fly > 0) {
-                capacity += num * ItemDefs[item].fly;
+            weight += num * Game::ItemDefs[item].weight;
+            if (Game::ItemDefs[item].fly > 0) {
+                capacity += num * Game::ItemDefs[item].fly;
             } else {
-                capacity += num * ItemDefs[item].swim;
+                capacity += num * Game::ItemDefs[item].swim;
                 flying = 0;
             }
             // Fleets travel as fast as their slowest ship
-            if (ItemDefs[item].speed < speed)
-                speed = ItemDefs[item].speed;
+            if (Game::ItemDefs[item].speed < speed)
+                speed = Game::ItemDefs[item].speed;
         }
     }
     // no ships no speed
@@ -696,8 +696,8 @@ std::string object_description(int obj)
 
     if (o->flags & ObjectType::SACRIFICE) {
         temp += " This structure requires a sacrifice of " + std::to_string(o->sacrifice_amount) + " " +
-            strings::plural(o->sacrifice_amount, ItemDefs[o->sacrifice_item].name, ItemDefs[o->sacrifice_item].names) +
-            " [" + ItemDefs[o->sacrifice_item].abr + "].";
+            strings::plural(o->sacrifice_amount, Game::ItemDefs[o->sacrifice_item].name, Game::ItemDefs[o->sacrifice_item].names) +
+            " [" + Game::ItemDefs[o->sacrifice_item].abr + "].";
     }
 
     if (o->flags & ObjectType::GRANTSKILL) {
@@ -706,7 +706,7 @@ std::string object_description(int obj)
     }
 
     if (Globals->LAIR_MONSTERS_EXIST && (o->monster != -1)) {
-        temp += " " + (ItemDefs[o->monster].names | filter::capitalize) + " can potentially lair in this structure.";
+        temp += " " + (Game::ItemDefs[o->monster].names | filter::capitalize) + " can potentially lair in this structure.";
         if (o->flags & ObjectType::NOMONSTERGROWTH) temp += " Monsters in this structures will never regenerate.";
     }
 
@@ -756,10 +756,10 @@ std::string object_description(int obj)
     int buildable = 1;
     auto pS = FindSkill(o->skill);
     if (o->item == -1 || o->skill == nullptr || !pS || pS->get().flags & SkillType::DISABLED) buildable = 0;
-    if (o->item != I_WOOD_OR_STONE && (ItemDefs[o->item].flags & ItemType::DISABLED)) buildable = 0;
+    if (o->item != I_WOOD_OR_STONE && (Game::ItemDefs[o->item].flags & ItemType::DISABLED)) buildable = 0;
     if (
-        o->item == I_WOOD_OR_STONE && (ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
-        (ItemDefs[I_STONE].flags & ItemType::DISABLED)
+        o->item == I_WOOD_OR_STONE && (Game::ItemDefs[I_WOOD].flags & ItemType::DISABLED) &&
+        (Game::ItemDefs[I_STONE].flags & ItemType::DISABLED)
     ) {
         buildable = 0;
     }
@@ -767,9 +767,9 @@ std::string object_description(int obj)
         temp += " This structure cannot be built by players.";
     }
 
-    if (o->productionAided != -1 && !(ItemDefs[o->productionAided].flags & ItemType::DISABLED)) {
+    if (o->productionAided != -1 && !(Game::ItemDefs[o->productionAided].flags & ItemType::DISABLED)) {
         temp += " This trade structure increases the amount of " +
-            (o->productionAided == I_SILVER ? "entertainment" : ItemDefs[o->productionAided].names) +
+            (o->productionAided == I_SILVER ? "entertainment" : Game::ItemDefs[o->productionAided].names) +
             " available in the region.";
     }
 
@@ -783,7 +783,7 @@ std::string object_description(int obj)
             if (buildable) {
                 temp += " Repair of damage is accomplished at a rate of " + std::to_string(o->maintFactor) +
                     " damage units per unit of " +
-                    (o->item == I_WOOD_OR_STONE ? "wood or stone." : ItemDefs[o->item].name);
+                    (o->item == I_WOOD_OR_STONE ? "wood or stone." : Game::ItemDefs[o->item].name);
             }
         }
     }

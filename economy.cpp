@@ -89,7 +89,7 @@ void ARegion::SetupHabitat(TerrainType* terrain) {
             noncoastalraces + sizeof(terrain->coastal_races) / sizeof(terrain->coastal_races[0]);
 
         race = -1;
-        while (race == -1 || (ItemDefs[race].flags & ItemType::DISABLED)) {
+        while (race == -1 || (Game::ItemDefs[race].flags & ItemType::DISABLED)) {
             int n = rng::get_random(IsCoastal() ? allraces : noncoastalraces);
             if (n > noncoastalraces-1) {
                 race = terrain->coastal_races[n-noncoastalraces-1];
@@ -99,7 +99,7 @@ void ARegion::SetupHabitat(TerrainType* terrain) {
     }
 
     habitat = habitat * 2 / 3 + rng::get_random(habitat / 3);
-    auto mt = find_race(ItemDefs[race].abr)->get();
+    auto mt = find_race(Game::ItemDefs[race].abr)->get();
     if (mt.terrain == terrain->similar_type) {
         habitat = (habitat * 9)/8;
     }
@@ -183,7 +183,7 @@ void ARegion::SetupEconomy() {
     products.push_back(w);
     products.push_back(e);
 
-    float ratio = ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+    float ratio = Game::ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
     // hack: include wage factor of 10 in float assignment above
     // Setup Recruiting
     Market *m = new Market(
@@ -192,7 +192,7 @@ void ARegion::SetupEconomy() {
     markets.push_back(m);
 
     if (Globals->LEADERS_EXIST) {
-        ratio = ItemDefs[I_LEADERS].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+        ratio = Game::ItemDefs[I_LEADERS].baseprice / ((float)Globals->BASE_MAN_COST * 10);
         // hack: include wage factor of 10 in float assignment above
         m = new Market(
             Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), Population() / 125, 0, 10000, 0, 400
@@ -365,7 +365,7 @@ void ARegion::SetupCityMarket()
     int cap;
     int offset = 0;
     int citymax = Globals->CITY_POP;
-    auto localrace = find_race(ItemDefs[race].abr);
+    auto localrace = find_race(Game::ItemDefs[race].abr);
     if (!localrace) localrace = find_race("SELF");
     auto locals = localrace->get();
     /* compose array of possible supply & demand items */
@@ -380,18 +380,18 @@ void ARegion::SetupCityMarket()
         demand[i] = 0;
         rare[i] = 0;
         antiques[i] = 0;
-        if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-        if (ItemDefs[i].flags & ItemType::NOMARKET) continue;
-        if (ItemDefs[i].type & IT_SHIP) continue;
-        if (ItemDefs[i].type & IT_TRADE) numtrade++;
+        if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+        if (Game::ItemDefs[i].flags & ItemType::NOMARKET) continue;
+        if (Game::ItemDefs[i].type & IT_SHIP) continue;
+        if (Game::ItemDefs[i].type & IT_TRADE) numtrade++;
         if (i==I_SILVER) continue;
-        if ((ItemDefs[i].type & IT_MAN)
-            || (ItemDefs[i].type & IT_LEADER)) continue;
+        if ((Game::ItemDefs[i].type & IT_MAN)
+            || (Game::ItemDefs[i].type & IT_LEADER)) continue;
 
         int canProduceHere = 0;
         // Check if the product can be produced in the region
         // Raw goods
-        if (ItemDefs[i].pInput[0].item == -1) {
+        if (Game::ItemDefs[i].pInput[0].item == -1) {
             for (unsigned int c = 0;
                 c<(sizeof(TerrainDefs[type].prods)/sizeof(TerrainDefs[type].prods[0]));
                 c++) {
@@ -406,10 +406,10 @@ void ARegion::SetupCityMarket()
         else {
             canProduceHere = 1;
             for (unsigned int c = 0;
-                c<(sizeof(ItemDefs[i].pInput)/sizeof(ItemDefs[i].pInput[0]));
+                c<(sizeof(Game::ItemDefs[i].pInput)/sizeof(Game::ItemDefs[i].pInput[0]));
                 c++) {
                 int match = 0;
-                int need = ItemDefs[i].pInput[c].item;
+                int need = Game::ItemDefs[i].pInput[c].item;
                 for (unsigned int r=0;
                     r<(sizeof(TerrainDefs[type].prods)/sizeof(TerrainDefs[type].prods[0]));
                     r++) {
@@ -427,7 +427,7 @@ void ARegion::SetupCityMarket()
         if (canProduceHere) canProduce = locals.CanProduce(i);
         bool isUseful = locals.CanUse(i);
         //Normal Items
-        if (ItemDefs[ i ].type & IT_NORMAL) {
+        if (Game::ItemDefs[ i ].type & IT_NORMAL) {
 
             if (i==I_GRAIN || i==I_LIVESTOCK || i==I_FISH) {
                 // Add foodstuffs directly to market
@@ -436,9 +436,9 @@ void ARegion::SetupCityMarket()
 
                 if (Globals->RANDOM_ECONOMY) {
                     amt += rng::get_random(amt);
-                    price = (ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
+                    price = (Game::ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
                 } else {
-                    price = ItemDefs[ i ].baseprice;
+                    price = Game::ItemDefs[ i ].baseprice;
                 }
 
                 cap = (citymax * 3/4) - 5000;
@@ -453,10 +453,10 @@ void ARegion::SetupCityMarket()
                 int price;
                 if (Globals->RANDOM_ECONOMY) {
                     amt += rng::get_random(amt);
-                    price = (ItemDefs[i].baseprice * (120 + rng::get_random(80))) /
+                    price = (Game::ItemDefs[i].baseprice * (120 + rng::get_random(80))) /
                         100;
                 } else {
-                    price = ItemDefs[ i ].baseprice;
+                    price = Game::ItemDefs[ i ].baseprice;
                 }
 
                 cap = (citymax * 3/4) - 5000;
@@ -465,14 +465,14 @@ void ARegion::SetupCityMarket()
                     Market::MarketType::M_BUY, i, price, amt, population, population + 2 * cap, amt, amt * 5
                 );
                 markets.push_back(m);
-            } else if (ItemDefs[i].pInput[0].item == -1) {
+            } else if (Game::ItemDefs[i].pInput[0].item == -1) {
                 // Basic resource
                 // Add to supply?
                 if (canProduce) supply[i] = 4;
                 // Add to demand?
                 if (!canProduceHere) {
                     // Is it a mount?
-                    if (ItemDefs[i].type & IT_MOUNT) {
+                    if (Game::ItemDefs[i].type & IT_MOUNT) {
                         if (locals.CanProduce(i)) demand[i] = 4;
                     } else if (isUseful) demand[i] = 4;
                 }
@@ -489,16 +489,16 @@ void ARegion::SetupCityMarket()
         } // end Normal Items
         // Advanced Items
         else if ((Globals->CITY_MARKET_ADVANCED_AMT)
-            && (ItemDefs[i].type & IT_ADVANCED)) {
+            && (Game::ItemDefs[i].type & IT_ADVANCED)) {
             if (isUseful) rare[i] = 4;
-            if (ItemDefs[i].hitchItem > 0) rare[i] = 2;
+            if (Game::ItemDefs[i].hitchItem > 0) rare[i] = 2;
         }
         // Magic Items
         else if ((Globals->CITY_MARKET_MAGIC_AMT)
-            && (ItemDefs[i].type & IT_MAGIC)) {
+            && (Game::ItemDefs[i].type & IT_MAGIC)) {
             if (isUseful) antiques[i] = 4;
                 else antiques[i] = 1;
-            if (ItemDefs[i].hitchItem > 0) antiques[i] = 2;
+            if (Game::ItemDefs[i].hitchItem > 0) antiques[i] = 2;
         }
     }
     /* Check for advanced item */
@@ -517,9 +517,9 @@ void ARegion::SetupCityMarket()
             int price;
             if (Globals->RANDOM_ECONOMY) {
                 amt += rng::get_random(amt);
-                price = (ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
+                price = (Game::ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
             } else {
-                price = ItemDefs[ i ].baseprice;
+                price = Game::ItemDefs[ i ].baseprice;
             }
 
             cap = (citymax *3/4) - 5000;
@@ -551,9 +551,9 @@ void ARegion::SetupCityMarket()
 
             if (Globals->RANDOM_ECONOMY) {
                 amt += rng::get_random(amt);
-                price = (ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
+                price = (Game::ItemDefs[i].baseprice * (100 + rng::get_random(50))) / 100;
             } else {
-                price = ItemDefs[ i ].baseprice;
+                price = Game::ItemDefs[ i ].baseprice;
             }
 
             cap = (citymax *3/4) - 5000;
@@ -587,10 +587,10 @@ void ARegion::SetupCityMarket()
 
         if (Globals->RANDOM_ECONOMY) {
             amt += rng::get_random(amt);
-            price = (ItemDefs[i].baseprice *
+            price = (Game::ItemDefs[i].baseprice *
                 (100 + rng::get_random(50))) / 100;
         } else {
-            price = ItemDefs[i].baseprice;
+            price = Game::ItemDefs[i].baseprice;
         }
 
         cap = (citymax/4);
@@ -624,10 +624,10 @@ void ARegion::SetupCityMarket()
 
         if (Globals->RANDOM_ECONOMY) {
             amt += rng::get_random(amt);
-            price = (ItemDefs[i].baseprice *
+            price = (Game::ItemDefs[i].baseprice *
                 (150 + rng::get_random(50))) / 100;
         } else {
-            price = ItemDefs[ i ].baseprice;
+            price = Game::ItemDefs[ i ].baseprice;
         }
 
         cap = (citymax/4);
@@ -660,10 +660,10 @@ void ARegion::SetupCityMarket()
     while (sell2 == sell1 || sell2 == buy2 || sell2 == buy1) sell2 = rng::get_random(numtrade);
 
     for (int i=0; i<NITEMS; i++) {
-        if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-        if (ItemDefs[i].flags & ItemType::NOMARKET) continue;
+        if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+        if (Game::ItemDefs[i].flags & ItemType::NOMARKET) continue;
 
-        if (ItemDefs[ i ].type & IT_TRADE) {
+        if (Game::ItemDefs[ i ].type & IT_TRADE) {
             int addbuy = 0;
             int addsell = 0;
 
@@ -686,12 +686,12 @@ void ARegion::SetupCityMarket()
                 if (Globals->RANDOM_ECONOMY) {
                     amt += rng::get_random(amt);
                     if (Globals->MORE_PROFITABLE_TRADE_GOODS) {
-                        price=(ItemDefs[i].baseprice*(250+rng::get_random(100)))/100;
+                        price=(Game::ItemDefs[i].baseprice*(250+rng::get_random(100)))/100;
                     } else {
-                        price=(ItemDefs[i].baseprice*(150+rng::get_random(50)))/100;
+                        price=(Game::ItemDefs[i].baseprice*(150+rng::get_random(50)))/100;
                     }
                 } else {
-                    price = ItemDefs[ i ].baseprice;
+                    price = Game::ItemDefs[ i ].baseprice;
                 }
 
                 cap = (citymax/2);
@@ -713,12 +713,12 @@ void ARegion::SetupCityMarket()
                 if (Globals->RANDOM_ECONOMY) {
                     amt += rng::get_random(amt);
                     if (Globals->MORE_PROFITABLE_TRADE_GOODS) {
-                        price=(ItemDefs[i].baseprice*(100+rng::get_random(90)))/100;
+                        price=(Game::ItemDefs[i].baseprice*(100+rng::get_random(90)))/100;
                     } else {
-                        price=(ItemDefs[i].baseprice*(100+rng::get_random(50)))/100;
+                        price=(Game::ItemDefs[i].baseprice*(100+rng::get_random(50)))/100;
                     }
                 } else {
-                    price = ItemDefs[ i ].baseprice;
+                    price = Game::ItemDefs[ i ].baseprice;
                 }
 
                 cap = (citymax/2);
@@ -747,15 +747,15 @@ void ARegion::SetupProds(double weight)
                     (Globals->COASTAL_FISH && IsCoastal()));
             switch (foodchoice) {
                 case 0:
-                    if (!(ItemDefs[I_GRAIN].flags & ItemType::DISABLED))
+                    if (!(Game::ItemDefs[I_GRAIN].flags & ItemType::DISABLED))
                         p = new Production(I_GRAIN, typer->economy);
                     break;
                 case 1:
-                    if (!(ItemDefs[I_LIVESTOCK].flags & ItemType::DISABLED))
+                    if (!(Game::ItemDefs[I_LIVESTOCK].flags & ItemType::DISABLED))
                         p = new Production(I_LIVESTOCK, typer->economy);
                     break;
                 case 2:
-                    if (!(ItemDefs[I_FISH].flags & ItemType::DISABLED))
+                    if (!(Game::ItemDefs[I_FISH].flags & ItemType::DISABLED))
                         p = new Production(I_FISH, typer->economy);
                     break;
             }
@@ -768,7 +768,7 @@ void ARegion::SetupProds(double weight)
         int chance = typer->prods[c].chance * weight;
         int amt = typer->prods[c].amount;
         if (item != -1) {
-            if (!(ItemDefs[item].flags & ItemType::DISABLED) &&
+            if (!(Game::ItemDefs[item].flags & ItemType::DISABLED) &&
                     (rng::get_random(100) < chance)) {
                 p = new Production(item, amt);
                 products.push_back(p);
@@ -893,11 +893,11 @@ void ARegion::UpdateEditRegion()
 
     //Replace man selling
     markets.erase(
-        remove_if(markets.begin(), markets.end(), [](const Market * m) { return ItemDefs[m->item].type & IT_MAN; }),
+        remove_if(markets.begin(), markets.end(), [](const Market * m) { return Game::ItemDefs[m->item].type & IT_MAN; }),
         markets.end()
     );
 
-    float ratio = ItemDefs[race].baseprice / (float) (Globals->BASE_MAN_COST * 10);
+    float ratio = Game::ItemDefs[race].baseprice / (float) (Globals->BASE_MAN_COST * 10);
     // hack: include wage factor of 10 in float calculation above
     Market *m = new Market(
         Market::MarketType::M_BUY, race, (int)(Wages() * 4 * ratio), Population()/ 25, 0, 10000, 0, 2000
@@ -905,7 +905,7 @@ void ARegion::UpdateEditRegion()
     markets.push_back(m);
 
     if (Globals->LEADERS_EXIST) {
-        ratio = ItemDefs[I_LEADERS].baseprice / (float) (Globals->BASE_MAN_COST * 10);
+        ratio = Game::ItemDefs[I_LEADERS].baseprice / (float) (Globals->BASE_MAN_COST * 10);
         // hack: include wage factor of 10 in float calculation above
         m = new Market(
             Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), Population() / 125, 0, 10000, 0, 400
@@ -947,7 +947,7 @@ void ARegion::SetupEditRegion()
             noncoastalraces + sizeof(typer->coastal_races)/sizeof(typer->coastal_races[0]);
 
         race = -1;
-        while (race == -1 || (ItemDefs[race].flags & ItemType::DISABLED)) {
+        while (race == -1 || (Game::ItemDefs[race].flags & ItemType::DISABLED)) {
             int n = rng::get_random(IsCoastal() ? allraces : noncoastalraces);
             if (n > noncoastalraces-1) {
                 race = typer->coastal_races[n-noncoastalraces-1];
@@ -957,7 +957,7 @@ void ARegion::SetupEditRegion()
     }
 
     habitat = habitat * 2/3 + rng::get_random(habitat/3);
-    auto mt = find_race(ItemDefs[race].abr)->get();
+    auto mt = find_race(Game::ItemDefs[race].abr)->get();
     if (mt.terrain == typer->similar_type) {
         habitat = (habitat * 9)/8;
     }
@@ -1016,7 +1016,7 @@ void ARegion::SetupEditRegion()
     // set up work and entertainment income
     SetIncome();
 
-    float ratio = ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+    float ratio = Game::ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
     // hack: include wage factor of 10 in float assignment above
     // Setup Recruiting
     Market *m = new Market(
@@ -1025,7 +1025,7 @@ void ARegion::SetupEditRegion()
     markets.push_back(m);
 
     if (Globals->LEADERS_EXIST) {
-        ratio = ItemDefs[I_LEADERS].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+        ratio = Game::ItemDefs[I_LEADERS].baseprice / ((float)Globals->BASE_MAN_COST * 10);
         // hack: include wage factor of 10 in float assignment above
         m = new Market(
             Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), Population() / 125, 0, 10000, 0, 400
@@ -1082,7 +1082,7 @@ int ARegion::ProdDev()
 {
     int basedev = BaseDev();
     for (const auto& p : products) {
-        if (ItemDefs[p->itemtype].type & IT_NORMAL && p->itemtype != I_SILVER) {
+        if (Game::ItemDefs[p->itemtype].type & IT_NORMAL && p->itemtype != I_SILVER) {
             basedev += p->activity;
         }
     }
@@ -1100,12 +1100,12 @@ int ARegion::TownHabitat()
     for(const auto obj : objects) {
         if (ObjectDefs[obj->type].protect > fort) fort = ObjectDefs[obj->type].protect;
         if (ObjectDefs[obj->type].productionAided >= 0) {
-            if (ItemDefs[ObjectDefs[obj->type].productionAided].type & IT_FOOD) farm++;
+            if (Game::ItemDefs[ObjectDefs[obj->type].productionAided].type & IT_FOOD) farm++;
             if (ObjectDefs[obj->type].productionAided == I_SILVER) inn++;
             if (ObjectDefs[obj->type].productionAided == I_HERBS) temple++;
             if (
                 (ObjectDefs[obj->type].flags & ObjectType::TRANSPORT) &&
-                (ItemDefs[ObjectDefs[obj->type].productionAided].type & IT_MOUNT)
+                (Game::ItemDefs[ObjectDefs[obj->type].productionAided].type & IT_MOUNT)
                 ) {
                 caravan++;
             }
@@ -1196,7 +1196,7 @@ int ARegion::TownGrowth()
         for (const auto& m : markets) {
             if (Population() > m->minpop) {
                 if (m->type == Market::MarketType::M_BUY) {
-                    if (ItemDefs[m->item].type & IT_TRADE) {
+                    if (Game::ItemDefs[m->item].type & IT_TRADE) {
                         amt += 5 * m->activity;
                         tot += 5 * m->maxamt;
                         /* regional economic improvement */
@@ -1206,12 +1206,12 @@ int ARegion::TownGrowth()
                     // Only food items except fish are mandatory
                     // for town growth - other items can
                     // be used in replacement
-                    if (ItemDefs[m->item].type & IT_FOOD) {
+                    if (Game::ItemDefs[m->item].type & IT_FOOD) {
                         amt += 2 * m->activity;
                     } else amt += m->activity;
-                    if ((ItemDefs[m->item].type & IT_FOOD) && (m->item != I_FISH))
+                    if ((Game::ItemDefs[m->item].type & IT_FOOD) && (m->item != I_FISH))
                         tot += 2 * m->maxamt;
-                    if (ItemDefs[m->item].type & IT_TRADE) {
+                    if (Game::ItemDefs[m->item].type & IT_TRADE) {
                         /* regional economic improvement */
                         improvement += 3 * amt;
                     }
@@ -1268,7 +1268,7 @@ void ARegion::Grow()
     int activity = 0;
     int amount = 0;
     for (const auto& p : products) {
-        if (ItemDefs[p->itemtype].type & IT_NORMAL && p->itemtype != I_SILVER) {
+        if (Game::ItemDefs[p->itemtype].type & IT_NORMAL && p->itemtype != I_SILVER) {
             activity += p->activity;
             // bonuses for productivity are calculated from
             // the _baseamount_ of all resources.
@@ -1547,14 +1547,14 @@ void ARegion::PostTurn()
             for (auto& m : markets) delete m; // Free the allocated object
             markets.clear(); // empty the vector.
             SetupCityMarket();
-            float ratio = ItemDefs[race].baseprice / (float) (Globals->BASE_MAN_COST * 10);
+            float ratio = Game::ItemDefs[race].baseprice / (float) (Globals->BASE_MAN_COST * 10);
             // Setup Recruiting
             Market *m = new Market(
                 Market::MarketType::M_BUY, race, (int)(Wages() * 4 * ratio), Population() / 25, 0, 10000, 0, 2000
             );
             markets.push_back(m);
             if (Globals->LEADERS_EXIST) {
-                ratio = ItemDefs[I_LEADERS].baseprice / (float)Globals->BASE_MAN_COST;
+                ratio = Game::ItemDefs[I_LEADERS].baseprice / (float)Globals->BASE_MAN_COST;
                 m = new Market(
                     Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), Population() / 125,
                     0, 10000, 0, 400

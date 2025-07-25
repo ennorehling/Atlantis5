@@ -59,10 +59,10 @@ std::optional<std::reference_wrapper<ItemType>> find_item(const strings::ci_stri
 {
     if (abbr.empty()) return std::nullopt;
 
-    auto it = std::find_if(ItemDefs.begin(), ItemDefs.end(), [abbr](const ItemType& item) {
+    auto it = std::find_if(Game::ItemDefs.begin(), Game::ItemDefs.end(), [abbr](const ItemType& item) {
         return abbr == item.abr;
     });
-    if (it != ItemDefs.end()) return std::ref(*it);
+    if (it != Game::ItemDefs.end()) return std::ref(*it);
 
     return std::nullopt;
 }
@@ -127,7 +127,7 @@ static std::string defense_type(int atype)
 int lookup_item(const strings::ci_string& name)
 {
     for (int i = 0; i < NITEMS; i++) {
-        std::string item_name = (ItemDefs[i].type & IT_ILLUSION ? "i" : "") + ItemDefs[i].abr;
+        std::string item_name = (Game::ItemDefs[i].type & IT_ILLUSION ? "i" : "") + Game::ItemDefs[i].abr;
         if (name == item_name) return i;
     }
     return -1;
@@ -157,11 +157,11 @@ std::optional<int> parse_item_category(const parser::token& str)
 int parse_all_items(const parser::token& token, int flags)
 {
     for (int i = 0; i < NITEMS; i++) {
-        if (ItemDefs[i].flags & flags) continue;
-        bool illusion = ItemDefs[i].type & IT_ILLUSION;
-        std::string itemName = (illusion ? "i" : "") + ItemDefs[i].name;
-        std::string itemNames = (illusion ? "i" : "") + ItemDefs[i].names;
-        std::string itemAbr = (illusion ? "i" : "") + ItemDefs[i].abr;
+        if (Game::ItemDefs[i].flags & flags) continue;
+        bool illusion = Game::ItemDefs[i].type & IT_ILLUSION;
+        std::string itemName = (illusion ? "i" : "") + Game::ItemDefs[i].name;
+        std::string itemNames = (illusion ? "i" : "") + Game::ItemDefs[i].names;
+        std::string itemAbr = (illusion ? "i" : "") + Game::ItemDefs[i].abr;
 
         if (token == itemName || token == itemNames || token == itemAbr) return i;
     }
@@ -192,12 +192,12 @@ string item_string(int type, int num, int flags)
     if (num == 1) {
         if (flags & FULLNUM)
             temp += std::to_string(num) + " ";
-        temp += (flags & ALWAYSPLURAL ? ItemDefs[type].names : ItemDefs[type].name) + " [" + ItemDefs[type].abr + "]";
+        temp += (flags & ALWAYSPLURAL ? Game::ItemDefs[type].names : Game::ItemDefs[type].name) + " [" + Game::ItemDefs[type].abr + "]";
     } else {
         if (num == -1) {
-            temp += "unlimited " + ItemDefs[type].names + " [" + ItemDefs[type].abr + "]";
+            temp += "unlimited " + Game::ItemDefs[type].names + " [" + Game::ItemDefs[type].abr + "]";
         } else {
-            temp += std::to_string(num) + " " + ItemDefs[type].names + " [" + ItemDefs[type].abr + "]";
+            temp += std::to_string(num) + " " + Game::ItemDefs[type].names + " [" + Game::ItemDefs[type].abr + "]";
         }
     }
     return temp;
@@ -321,7 +321,7 @@ std::string show_special(const std::string& special, int level, int expandLevel,
         last = -1;
         for (i = 0; i < 7; i++) {
             if (spd.targets[i] == -1) continue;
-            if (ItemDefs[spd.targets[i]].flags & ItemType::DISABLED) continue;
+            if (Game::ItemDefs[spd.targets[i]].flags & ItemType::DISABLED) continue;
             if (last == -1) {
                 last = i;
                 continue;
@@ -512,17 +512,17 @@ static std::string weapon_type(int flags, int wclass)
 
 std::string ShowItem::display_name()
 {
-    if (ItemDefs[item].type & IT_ILLUSION) {
-        return "illusory " + ItemDefs[item].name;
+    if (Game::ItemDefs[item].type & IT_ILLUSION) {
+        return "illusory " + Game::ItemDefs[item].name;
     }
-    return ItemDefs[item].name;
+    return Game::ItemDefs[item].name;
 }
 
 std::string ShowItem::display_tag() {
-    if (ItemDefs[item].type & IT_ILLUSION) {
-        return "I" + ItemDefs[item].abr;
+    if (Game::ItemDefs[item].type & IT_ILLUSION) {
+        return "I" + Game::ItemDefs[item].abr;
     }
-    return ItemDefs[item].abr;
+    return Game::ItemDefs[item].abr;
 
 }
 
@@ -531,27 +531,27 @@ std::string item_description(int item, int full)
     int i;
     std::string skname;
 
-    if (ItemDefs[item].flags & ItemType::DISABLED) return "";
+    if (Game::ItemDefs[item].flags & ItemType::DISABLED) return "";
 
     std::string temp;
-    int illusion = (ItemDefs[item].type & IT_ILLUSION);
+    int illusion = (Game::ItemDefs[item].type & IT_ILLUSION);
 
-    temp += (illusion?"illusory ":"")+ ItemDefs[item].name + " [" + (illusion?"I":"") + ItemDefs[item].abr + "]";
+    temp += (illusion?"illusory ":"")+ Game::ItemDefs[item].name + " [" + (illusion?"I":"") + Game::ItemDefs[item].abr + "]";
 
     /* new ship items */
-    if (ItemDefs[item].type & IT_SHIP) {
-        if (ItemDefs[item].swim > 0) {
-            temp += ". This is a ship with a capacity of " + std::to_string(ItemDefs[item].swim);
+    if (Game::ItemDefs[item].type & IT_SHIP) {
+        if (Game::ItemDefs[item].swim > 0) {
+            temp += ". This is a ship with a capacity of " + std::to_string(Game::ItemDefs[item].swim);
         }
-        if (ItemDefs[item].fly > 0) {
-            temp += ". This is a flying 'ship' with a capacity of " + std::to_string(ItemDefs[item].fly);
+        if (Game::ItemDefs[item].fly > 0) {
+            temp += ". This is a flying 'ship' with a capacity of " + std::to_string(Game::ItemDefs[item].fly);
         }
-        temp += " and a speed of " + std::to_string(ItemDefs[item].speed) + " hex";
-        if (ItemDefs[item].speed != 1)
+        temp += " and a speed of " + std::to_string(Game::ItemDefs[item].speed) + " hex";
+        if (Game::ItemDefs[item].speed != 1)
             temp += "es";
-        temp += " per month. This ship requires a total of " + std::to_string(ItemDefs[item].weight/50) +
+        temp += " per month. This ship requires a total of " + std::to_string(Game::ItemDefs[item].weight/50) +
             " levels of sailing skill to sail";
-        int objectno = lookup_object(ItemDefs[item].name);
+        int objectno = lookup_object(Game::ItemDefs[item].name);
         if (objectno >= 0) {
             if (ObjectDefs[objectno].protect > 0) {
                 temp += ". This ship provides defense to the first " + std::to_string(ObjectDefs[objectno].protect) +
@@ -579,81 +579,81 @@ std::string item_description(int item, int full)
         }
     } else {
 
-        temp += ", weight " + std::to_string(ItemDefs[item].weight);
+        temp += ", weight " + std::to_string(Game::ItemDefs[item].weight);
 
-        if (ItemDefs[item].walk) {
-            int cap = ItemDefs[item].walk - ItemDefs[item].weight;
+        if (Game::ItemDefs[item].walk) {
+            int cap = Game::ItemDefs[item].walk - Game::ItemDefs[item].weight;
             if (cap) {
                 temp += ", walking capacity " + std::to_string(cap);
             } else {
                 temp += ", can walk";
             }
         }
-        if ((ItemDefs[item].hitchItem != -1 )&&
-                !(ItemDefs[ItemDefs[item].hitchItem].flags & ItemType::DISABLED)) {
-            int cap = ItemDefs[item].walk - ItemDefs[item].weight +
-                ItemDefs[item].hitchwalk;
+        if ((Game::ItemDefs[item].hitchItem != -1 )&&
+                !(Game::ItemDefs[Game::ItemDefs[item].hitchItem].flags & ItemType::DISABLED)) {
+            int cap = Game::ItemDefs[item].walk - Game::ItemDefs[item].weight +
+                Game::ItemDefs[item].hitchwalk;
             if (cap) {
                 temp += ", walking capacity " + std::to_string(cap) + " when hitched to a " +
-                    ItemDefs[ItemDefs[item].hitchItem].name;
+                    Game::ItemDefs[Game::ItemDefs[item].hitchItem].name;
             }
         }
-        if (ItemDefs[item].ride) {
-            int cap = ItemDefs[item].ride - ItemDefs[item].weight;
+        if (Game::ItemDefs[item].ride) {
+            int cap = Game::ItemDefs[item].ride - Game::ItemDefs[item].weight;
             if (cap) {
                 temp += ", riding capacity " + std::to_string(cap);
             } else {
                 temp += ", can ride";
             }
         }
-        if (ItemDefs[item].swim) {
-            int cap = ItemDefs[item].swim - ItemDefs[item].weight;
+        if (Game::ItemDefs[item].swim) {
+            int cap = Game::ItemDefs[item].swim - Game::ItemDefs[item].weight;
             if (cap) {
                 temp += ", swimming capacity " + std::to_string(cap);
             } else {
                 temp += ", can swim";
             }
         }
-        if (ItemDefs[item].fly) {
-            int cap = ItemDefs[item].fly - ItemDefs[item].weight;
+        if (Game::ItemDefs[item].fly) {
+            int cap = Game::ItemDefs[item].fly - Game::ItemDefs[item].weight;
             if (cap) {
                 temp += ", flying capacity " + std::to_string(cap);
             } else {
                 temp += ", can fly";
             }
         }
-        if (ItemDefs[item].speed) {
-            temp += ", moves " + std::to_string(ItemDefs[item].speed) +
-                strings::plural(ItemDefs[item].speed, " hex", " hexes") + " per month";
+        if (Game::ItemDefs[item].speed) {
+            temp += ", moves " + std::to_string(Game::ItemDefs[item].speed) +
+                strings::plural(Game::ItemDefs[item].speed, " hex", " hexes") + " per month";
         }
     }
 
-    if (ItemDefs[item].flags & ItemType::NOSTEALTH) {
+    if (Game::ItemDefs[item].flags & ItemType::NOSTEALTH) {
         temp += ". This item prevents the unit it is with from being stealthy";
     }
-    if (ItemDefs[item].flags & ItemType::NO_SHAFT) {
+    if (Game::ItemDefs[item].flags & ItemType::NO_SHAFT) {
         temp += ". This item prevents the unit it is with from entering a shaft";
     }
-    if (ItemDefs[item].flags & ItemType::SEEK_ALTAR) {
+    if (Game::ItemDefs[item].flags & ItemType::SEEK_ALTAR) {
         temp += ". This item desires to move toward the nearest Ritual Altar";
     }
-    if (ItemDefs[item].flags & ItemType::MAINTENANCE) {
-        temp += ". This item requires maintenance each turn of " + std::to_string(ItemDefs[item].baseprice) + " silver";
-        if (ItemDefs[item].flags & ItemType::SEEK_ALTAR) {
+    if (Game::ItemDefs[item].flags & ItemType::MAINTENANCE) {
+        temp += ". This item requires maintenance each turn of " + std::to_string(Game::ItemDefs[item].baseprice) + " silver";
+        if (Game::ItemDefs[item].flags & ItemType::SEEK_ALTAR) {
             temp += ". Moving toward the altar will reduce the maintenance cost in half. Moving away from the altar will multiply the maintenance cost 5 time";
         }
     }
 
 
     if (Globals->ALLOW_WITHDRAW) {
-        if (ItemDefs[item].type & IT_NORMAL && item != I_SILVER) {
-            temp += ", costs " + std::to_string(ItemDefs[item].baseprice*5/2) + " silver to withdraw";
+        if (Game::ItemDefs[item].type & IT_NORMAL && item != I_SILVER) {
+            temp += ", costs " + std::to_string(Game::ItemDefs[item].baseprice*5/2) + " silver to withdraw";
         }
     }
     temp += ".";
 
-    if (ItemDefs[item].type & IT_MAN) {
-        auto mt = find_race(ItemDefs[item].abr)->get();
+    if (Game::ItemDefs[item].type & IT_MAN) {
+        auto mt = find_race(Game::ItemDefs[item].abr)->get();
         std::string mani = "MANI";
         std::string last = "";
         bool found = false;
@@ -696,9 +696,9 @@ std::string item_description(int item, int full)
         }
     }
 
-    if ((ItemDefs[item].type & IT_MONSTER) && !(ItemDefs[item].flags & ItemType::MANPRODUCE)) {
+    if ((Game::ItemDefs[item].type & IT_MONSTER) && !(Game::ItemDefs[item].flags & ItemType::MANPRODUCE)) {
         temp += " This is a monster.";
-        auto monster = find_monster(ItemDefs[item].abr, (ItemDefs[item].type & IT_ILLUSION))->get();
+        auto monster = find_monster(Game::ItemDefs[item].abr, (Game::ItemDefs[item].type & IT_ILLUSION))->get();
         temp += " This monster attacks with a combat skill of " + std::to_string(monster.attackLevel);
 
         for (int c = 0; c < NUM_ATTACK_TYPES; c++) {
@@ -826,9 +826,9 @@ std::string item_description(int item, int full)
         temp += "silver as treasure.";
     }
 
-    if(ItemDefs[item].flags & ItemType::MANPRODUCE) {
+    if(Game::ItemDefs[item].flags & ItemType::MANPRODUCE) {
         temp += " This is a free-moving-item (FMI).";
-        auto monster = find_monster(ItemDefs[item].abr, (ItemDefs[item].type & IT_ILLUSION))->get();
+        auto monster = find_monster(Game::ItemDefs[item].abr, (Game::ItemDefs[item].type & IT_ILLUSION))->get();
         temp += " This FMI attacks with a combat skill of " + std::to_string(monster.attackLevel) + ".";
 
         for (int c = 0; c < NUM_ATTACK_TYPES; c++) {
@@ -878,8 +878,8 @@ std::string item_description(int item, int full)
         }
     }
 
-    if (ItemDefs[item].type & IT_WEAPON) {
-        auto weapon = find_weapon(ItemDefs[item].abr)->get();
+    if (Game::ItemDefs[item].type & IT_WEAPON) {
+        auto weapon = find_weapon(Game::ItemDefs[item].abr)->get();
         temp += " This is a ";
         temp += weapon_type(weapon.flags, weapon.weapClass) + " weapon and each " +
             attack_damage_description(weapon.hitDamage) + ".";
@@ -1012,9 +1012,9 @@ std::string item_description(int item, int full)
         }
     }
 
-    if (ItemDefs[item].type & IT_ARMOR) {
+    if (Game::ItemDefs[item].type & IT_ARMOR) {
         temp += " This is a type of armor.";
-        auto armor = find_armor(ItemDefs[item].abr)->get();
+        auto armor = find_armor(Game::ItemDefs[item].abr)->get();
         temp += " This armor will protect its wearer ";
         for (i = 0; i < NUM_WEAPON_CLASSES; i++) {
             if (i == NUM_WEAPON_CLASSES - 1) {
@@ -1035,20 +1035,20 @@ std::string item_description(int item, int full)
         }
     }
 
-    if (ItemDefs[item].type & IT_TOOL) {
+    if (Game::ItemDefs[item].type & IT_TOOL) {
         int comma = 0;
         int last = -1;
         temp += " This is a tool. This item increases the production of ";
         for (i = NITEMS - 1; i > 0; i--) {
-            if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-            if (ItemDefs[i].mult_item == item) {
+            if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+            if (Game::ItemDefs[i].mult_item == item) {
                 last = i;
                 break;
             }
         }
         for (i = 0; i < NITEMS; i++) {
-            if (ItemDefs[i].flags & ItemType::DISABLED) continue;
-            if (ItemDefs[i].mult_item == item) {
+            if (Game::ItemDefs[i].flags & ItemType::DISABLED) continue;
+            if (Game::ItemDefs[i].mult_item == item) {
                 if (comma) {
                     if (last == i) {
                         if (comma > 1) temp += ",";
@@ -1063,41 +1063,41 @@ std::string item_description(int item, int full)
                 } else {
                     temp += item_string(i, 1);
                 }
-                temp += " by " + std::to_string(ItemDefs[i].mult_val);
+                temp += " by " + std::to_string(Game::ItemDefs[i].mult_val);
             }
         }
         temp += ".";
     }
 
-    if (ItemDefs[item].type & IT_TRADE) {
+    if (Game::ItemDefs[item].type & IT_TRADE) {
         temp += " This is a trade good.";
         if (full) {
             if (Globals->RANDOM_ECONOMY) {
                 int maxbuy, minbuy, maxsell, minsell;
                 if (Globals->MORE_PROFITABLE_TRADE_GOODS) {
-                    minsell = (ItemDefs[item].baseprice*250)/100;
-                    maxsell = (ItemDefs[item].baseprice*350)/100;
-                    minbuy = (ItemDefs[item].baseprice*100)/100;
-                    maxbuy = (ItemDefs[item].baseprice*190)/100;
+                    minsell = (Game::ItemDefs[item].baseprice*250)/100;
+                    maxsell = (Game::ItemDefs[item].baseprice*350)/100;
+                    minbuy = (Game::ItemDefs[item].baseprice*100)/100;
+                    maxbuy = (Game::ItemDefs[item].baseprice*190)/100;
                 } else {
-                    minsell = (ItemDefs[item].baseprice*150)/100;
-                    maxsell = (ItemDefs[item].baseprice*200)/100;
-                    minbuy = (ItemDefs[item].baseprice*100)/100;
-                    maxbuy = (ItemDefs[item].baseprice*150)/100;
+                    minsell = (Game::ItemDefs[item].baseprice*150)/100;
+                    maxsell = (Game::ItemDefs[item].baseprice*200)/100;
+                    minbuy = (Game::ItemDefs[item].baseprice*100)/100;
+                    maxbuy = (Game::ItemDefs[item].baseprice*150)/100;
                 }
                 temp += " This item can be bought for between " + std::to_string(minbuy) + " and " +
                     std::to_string(maxbuy) + " silver.";
                 temp += " This item can be sold for between " + std::to_string(minsell) + " and " +
                     std::to_string(maxsell) + " silver.";
             } else {
-                temp += " This item can be bought and sold for " + std::to_string(ItemDefs[item].baseprice) + " silver.";
+                temp += " This item can be bought and sold for " + std::to_string(Game::ItemDefs[item].baseprice) + " silver.";
             }
         }
     }
 
-    if (ItemDefs[item].type & IT_MOUNT) {
+    if (Game::ItemDefs[item].type & IT_MOUNT) {
         temp += " This is a mount.";
-        auto mount = find_mount(ItemDefs[item].abr).value().get();
+        auto mount = find_mount(Game::ItemDefs[item].abr).value().get();
         if (mount.skill == NULL) {
             temp += " No skill is required to use this mount.";
         } else {
@@ -1125,7 +1125,7 @@ std::string item_description(int item, int full)
         }
 
         if (full) {
-            if (ItemDefs[item].fly) {
+            if (Game::ItemDefs[item].fly) {
                 temp += " This mount gives a maximum bonus of +";
                 if (Globals->HALF_RIDING_BONUS) {
                     temp += std::to_string((mount.maxHamperedBonus + 1) / 2) + " when ridden into combat in ";
@@ -1141,18 +1141,18 @@ std::string item_description(int item, int full)
     } else {
         int found;
 
-        auto pS = FindSkill(ItemDefs[item].pSkill);
+        auto pS = FindSkill(Game::ItemDefs[item].pSkill);
         if (pS && !(pS->get().flags & SkillType::DISABLED)) {
             found = 0;
             for (i = 0; i < 4; i++)
-                if (ItemDefs[item].pInput[i].item != -1)
+                if (Game::ItemDefs[item].pInput[i].item != -1)
                     found = 1;
             if (!found)
                 temp += " This item is a trade resource.";
         }
     }
 
-    if (ItemDefs[item].type & IT_MONEY) {
+    if (Game::ItemDefs[item].type & IT_MONEY) {
         temp += " This is the currency of " + Globals->WORLD_NAME + ".";
     }
 
@@ -1164,7 +1164,7 @@ std::string item_description(int item, int full)
         auto ap = attribtype->get();
         for (i = 0; i < 5; i++)
             if (ap.mods[i].flags & AttribModItem::ITEM) {
-                std::string abbr = ItemDefs[item].abr;
+                std::string abbr = Game::ItemDefs[item].abr;
                 if (abbr == ap.mods[i].ident &&
                         ap.mods[i].modtype == AttribModItem::CONSTANT) {
                     temp += " This item grants a " + std::to_string(ap.mods[i].val) +
@@ -1181,7 +1181,7 @@ std::string item_description(int item, int full)
         auto ap = attribtype->get();
         for (i = 0; i < 5; i++)
             if (ap.mods[i].flags & AttribModItem::ITEM) {
-                std::string abbr = ItemDefs[item].abr;
+                std::string abbr = Game::ItemDefs[item].abr;
                 if (abbr == ap.mods[i].ident && ap.mods[i].modtype == AttribModItem::CONSTANT) {
                     temp += " This item grants a " + std::to_string(ap.mods[i].val) +
                         " point bonus to a unit's stealth skill";
@@ -1197,7 +1197,7 @@ std::string item_description(int item, int full)
         auto ap = attribtype->get();
         for (i = 0; i < 5; i++)
             if (ap.mods[i].flags & AttribModItem::ITEM) {
-                std::string abbr = ItemDefs[item].abr;
+                std::string abbr = Game::ItemDefs[item].abr;
                 if (abbr == ap.mods[i].ident && ap.mods[i].modtype == AttribModItem::CONSTANT) {
                     if (Globals->FLEET_WIND_BOOST > 0) {
                         temp += " The possessor of this item will add " + std::to_string(Globals->FLEET_WIND_BOOST) +
@@ -1213,12 +1213,12 @@ std::string item_description(int item, int full)
     // wouldn't be any of these...
     switch (item) {
         case I_RINGOFI:
-            if (!(ItemDefs[I_AMULETOFTS].flags & ItemType::DISABLED)) {
+            if (!(Game::ItemDefs[I_AMULETOFTS].flags & ItemType::DISABLED)) {
                 temp += " A Ring of Invisibility has one limitation; a unit possessing a RING cannot assassinate, nor steal from, a unit with an Amulet of True Seeing.";
             }
             break;
         case I_AMULETOFTS:
-            if (!(ItemDefs[I_RINGOFI].flags & ItemType::DISABLED)) {
+            if (!(Game::ItemDefs[I_RINGOFI].flags & ItemType::DISABLED)) {
                 temp += " Also, a unit with an Amulet of True Seeing cannot be assassinated by, nor have items stolen by, a unit with a Ring of Invisibility (note that the unit must have at least one Amulet of True Seeing per man in order to repel a unit with a Ring of Invisibility).";
             }
             break;
@@ -1238,15 +1238,15 @@ std::string item_description(int item, int full)
             break;
     }
 
-    auto pS = FindSkill(ItemDefs[item].grantSkill);
+    auto pS = FindSkill(Game::ItemDefs[item].grantSkill);
     if (pS && pS->get().flags & SkillType::CAST) {
         temp += " This item allows its possessor to CAST the " + pS->get().name + " spell as if their skill in " +
             pS->get().name + " was ";
-        if (ItemDefs[item].minGrant < ItemDefs[item].maxGrant) {
+        if (Game::ItemDefs[item].minGrant < Game::ItemDefs[item].maxGrant) {
             int count, found;
             count = 0;
             for (i = 0; i < 4; i++) {
-                pS = FindSkill(ItemDefs[item].fromSkills[i]);
+                pS = FindSkill(Game::ItemDefs[item].fromSkills[i]);
                 if (pS && !(pS->get().flags & SkillType::DISABLED))
                     count++;
             }
@@ -1257,7 +1257,7 @@ std::string item_description(int item, int full)
             temp += "their ";
             found = 0;
             for (i = 0; i < 4; i++) {
-                pS = FindSkill(ItemDefs[item].fromSkills[i]);
+                pS = FindSkill(Game::ItemDefs[item].fromSkills[i]);
                 if (!pS || (pS->get().flags & SkillType::DISABLED))
                     continue;
                 if (found > 0) {
@@ -1274,16 +1274,16 @@ std::string item_description(int item, int full)
                 temp += "s";
             temp += ", up to a maximum of";
         }
-        temp += " level " + std::to_string(ItemDefs[item].maxGrant) + ".";
-        if (ItemDefs[item].minGrant > 1 &&
-                ItemDefs[item].minGrant < ItemDefs[item].maxGrant) {
-            temp += " A skill level of at least " + std::to_string(ItemDefs[item].minGrant) + " will always be granted.";
+        temp += " level " + std::to_string(Game::ItemDefs[item].maxGrant) + ".";
+        if (Game::ItemDefs[item].minGrant > 1 &&
+                Game::ItemDefs[item].minGrant < Game::ItemDefs[item].maxGrant) {
+            temp += " A skill level of at least " + std::to_string(Game::ItemDefs[item].minGrant) + " will always be granted.";
         }
     }
 
-    if (ItemDefs[item].type & IT_BATTLE) {
+    if (Game::ItemDefs[item].type & IT_BATTLE) {
         temp += " This item is a miscellaneous combat item.";
-        auto bt = find_battle_item(ItemDefs[item].abr);
+        auto bt = find_battle_item(Game::ItemDefs[item].abr);
         if (bt) {
             if (bt->get().flags & BattleItemType::MAGEONLY) {
                 temp += " This item may only be used by a mage";
@@ -1298,23 +1298,23 @@ std::string item_description(int item, int full)
                 temp += " This item can cast ";
             temp += show_special(bt->get().special ? bt->get().special : "", bt->get().skillLevel, 1, bt->get().flags & BattleItemType::SHIELD);
         }
-    } else if (ItemDefs[item].type & IT_MAGEONLY) {
+    } else if (Game::ItemDefs[item].type & IT_MAGEONLY) {
         temp += " This item may only be used by a mage";
         if (Globals->APPRENTICES_EXIST) {
             temp += " or an " + Globals->APPRENTICE_NAME;
         }
         temp += ".";
     }
-    if (ItemDefs[item].type & IT_FOOD) {
+    if (Game::ItemDefs[item].type & IT_FOOD) {
         temp += " This item can be eaten to provide " + std::to_string(Globals->UPKEEP_FOOD_VALUE) +
             " silver towards a unit's maintenance cost.";
     }
-    if (ItemDefs[item].flags & ItemType::CANTGIVE) {
+    if (Game::ItemDefs[item].flags & ItemType::CANTGIVE) {
         temp += " This item cannot be given to other units.";
     }
 
-    if (ItemDefs[item].max_inventory) {
-        temp += " A unit may have at most " + item_string(item, ItemDefs[item].max_inventory, FULLNUM) + ".";
+    if (Game::ItemDefs[item].max_inventory) {
+        temp += " A unit may have at most " + item_string(item, Game::ItemDefs[item].max_inventory, FULLNUM) + ".";
     }
 
     return temp;
@@ -1322,7 +1322,7 @@ std::string item_description(int item, int full)
 
 int IsSoldier(int item)
 {
-    if (ItemDefs[item].type & IT_MAN || ItemDefs[item].type & IT_MONSTER)
+    if (Game::ItemDefs[item].type & IT_MAN || Game::ItemDefs[item].type & IT_MONSTER)
         return 1;
     return 0;
 }
@@ -1342,10 +1342,10 @@ std::string Item::report(bool see_illusions)
 {
     std::string ret = "";
     // special handling of the unfinished ship items
-    if (ItemDefs[type].type & IT_SHIP) {
-        ret += "unfinished " + ItemDefs[type].name + " [" + ItemDefs[type].abr + "] (needs " + std::to_string(num) + ")";
+    if (Game::ItemDefs[type].type & IT_SHIP) {
+        ret += "unfinished " + Game::ItemDefs[type].name + " [" + Game::ItemDefs[type].abr + "] (needs " + std::to_string(num) + ")";
     } else ret += item_string(type,num);
-    if (see_illusions && (ItemDefs[type].type & IT_ILLUSION)) {
+    if (see_illusions && (Game::ItemDefs[type].type & IT_ILLUSION)) {
         ret = ret + " (illusion)";
     }
     return ret;
@@ -1355,8 +1355,8 @@ void Item::Writeout(ostream& f)
 {
     if (type != -1) {
         f << num << " ";
-        if (ItemDefs[type].type & IT_ILLUSION) f << "i";
-        f << ItemDefs[type].abr << '\n';
+        if (Game::ItemDefs[type].type & IT_ILLUSION) f << "i";
+        f << Game::ItemDefs[type].abr << '\n';
     } else
         f << "-1 NO_ITEM\n";
 }
@@ -1381,7 +1381,7 @@ void ItemList::Readin(istream &f)
     for (int j = 0; j < i; j++) {
         Item *temp = new Item;
         temp->Readin(f);
-        if (temp->type < 0 || temp->num < 1 || ItemDefs[temp->type].flags & ItemType::DISABLED) {
+        if (temp->type < 0 || temp->num < 1 || Game::ItemDefs[temp->type].flags & ItemType::DISABLED) {
             delete temp;
             continue;
         }
@@ -1403,9 +1403,9 @@ int ItemList::Weight()
     int frac = 0;
     for(auto i : items) {
         // Exempt unfinished ships from weight calculations: these just get removed when the unit moves.
-        if (ItemDefs[i->type].type & IT_SHIP) continue;
-        if (ItemDefs[i->type].weight == 0) frac += i->num;
-        else wt += ItemDefs[i->type].weight * i->num;
+        if (Game::ItemDefs[i->type].type & IT_SHIP) continue;
+        if (Game::ItemDefs[i->type].weight == 0) frac += i->num;
+        else wt += Game::ItemDefs[i->type].weight * i->num;
     }
     if (Globals->FRACTIONAL_WEIGHT > 0 && frac != 0) wt += (frac/Globals->FRACTIONAL_WEIGHT);
     return wt;
@@ -1446,11 +1446,11 @@ std::string ItemList::battle_report()
 {
     std::string temp;
     for(auto i : items) {
-        if (ItemDefs[i->type].combat) {
+        if (Game::ItemDefs[i->type].combat) {
             temp += ", ";
             temp += i->report(false);
-            if (ItemDefs[i->type].type & IT_MONSTER) {
-                auto monster = find_monster(ItemDefs[i->type].abr, (ItemDefs[i->type].type & IT_ILLUSION))->get();
+            if (Game::ItemDefs[i->type].type & IT_MONSTER) {
+                auto monster = find_monster(Game::ItemDefs[i->type].abr, (Game::ItemDefs[i->type].type & IT_ILLUSION))->get();
                 temp += " (Combat " + std::to_string(monster.attackLevel) + "/" +
                     std::to_string(monster.defense[ATTACK_COMBAT]) + ", Attacks " + std::to_string(monster.numAttacks) +
                     ", Hits " + std::to_string(monster.hits) + ", Tactics " + std::to_string(monster.tactics) + ")";
@@ -1468,33 +1468,33 @@ std::string ItemList::report_by_type(int type, int obs, int seeillusions, int no
         if (i->checked) continue;
 
         bool battle_item = (
-            (ItemDefs[i->type].type & IT_WEAPON) || (ItemDefs[i->type].type & IT_BATTLE) ||
-            (ItemDefs[i->type].type & IT_ARMOR) || (ItemDefs[i->type].type & IT_MAGIC)
+            (Game::ItemDefs[i->type].type & IT_WEAPON) || (Game::ItemDefs[i->type].type & IT_BATTLE) ||
+            (Game::ItemDefs[i->type].type & IT_ARMOR) || (Game::ItemDefs[i->type].type & IT_MAGIC)
         );
 
         switch (type) {
             case 0:
-                if (ItemDefs[i->type].type & IT_MAN) report = 1;
+                if (Game::ItemDefs[i->type].type & IT_MAN) report = 1;
                 break;
             case 1:
-                if (ItemDefs[i->type].type & IT_MONSTER) report = 1;
+                if (Game::ItemDefs[i->type].type & IT_MONSTER) report = 1;
                 break;
             case 2:
                 if (battle_item) report = 1;
                 break;
             case 3:
-                if (ItemDefs[i->type].type & IT_MOUNT) report = 1;
+                if (Game::ItemDefs[i->type].type & IT_MOUNT) report = 1;
                 break;
             case 4:
                 if ((i->type == I_WAGON) || (i->type == I_MWAGON)) report = 1;
                 break;
             case 5:
                 report = 1;
-                if (ItemDefs[i->type].type & IT_MAN) report = 0;
-                if (ItemDefs[i->type].type & IT_MONSTER) report = 0;
+                if (Game::ItemDefs[i->type].type & IT_MAN) report = 0;
+                if (Game::ItemDefs[i->type].type & IT_MONSTER) report = 0;
                 if (i->type == I_SILVER) report = 0;
                 if (battle_item) report = 0;
-                if (ItemDefs[i->type].type & IT_MOUNT) report = 0;
+                if (Game::ItemDefs[i->type].type & IT_MOUNT) report = 0;
                 if ((i->type == I_WAGON) || (i->type == I_MWAGON)) report = 0;
                 break;
             case 6:
@@ -1506,7 +1506,7 @@ std::string ItemList::report_by_type(int type, int obs, int seeillusions, int no
                 else temp += ", ";
                 temp += i->report(seeillusions);
             } else {
-                if (ItemDefs[i->type].weight) {
+                if (Game::ItemDefs[i->type].weight) {
                     if (nofirstcomma) nofirstcomma = 0;
                     else temp += ", ";
                     temp += i->report(seeillusions);
@@ -1547,31 +1547,31 @@ void ItemList::SetNum(int t,int n)
 
 bool ManType::CanProduce(int item)
 {
-    if (ItemDefs[item].flags & ItemType::DISABLED) return false;
-    if (!ItemDefs[item].pSkill) return false;
+    if (Game::ItemDefs[item].flags & ItemType::DISABLED) return false;
+    if (!Game::ItemDefs[item].pSkill) return false;
     for (unsigned int i=0; i<(sizeof(skills)/sizeof(skills[0])); i++) {
         if (skills[i] == std::nullopt) continue;
-        if (skills[i] == ItemDefs[item].pSkill) return true;
+        if (skills[i] == Game::ItemDefs[item].pSkill) return true;
     }
     return false;
 }
 
 bool ManType::CanUse(int item)
 {
-    if (ItemDefs[item].flags & ItemType::DISABLED) return false;
+    if (Game::ItemDefs[item].flags & ItemType::DISABLED) return false;
 
     // Check if the item is a mount
-    if (ItemDefs[item].type & IT_MOUNT) return true;
+    if (Game::ItemDefs[item].type & IT_MOUNT) return true;
 
     // Check if the item is a weapon
-    if (ItemDefs[item].type & IT_WEAPON) return true;
+    if (Game::ItemDefs[item].type & IT_WEAPON) return true;
 
     // Check if the item is a tool
-    if (ItemDefs[item].type & IT_TOOL) return true;
+    if (Game::ItemDefs[item].type & IT_TOOL) return true;
 
     // Check if the item is an armor
-    if (ItemDefs[item].type & IT_ARMOR) {
-        auto armor = find_armor(ItemDefs[item].abr)->get();
+    if (Game::ItemDefs[item].type & IT_ARMOR) {
+        auto armor = find_armor(Game::ItemDefs[item].abr)->get();
         int p = armor.from / armor.saves[3];
         if (p > 4) {
             // puny armor not used by combative races

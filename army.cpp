@@ -201,7 +201,7 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         int objectno;
 
         auto calc_def = [](Item *i) {
-            auto obid = lookup_object(ItemDefs[i->type].name);
+            auto obid = lookup_object(Game::ItemDefs[i->type].name);
             int prot = 0;
             if (obid >= 0 && ObjectDefs[obid].protect > 0) prot = ObjectDefs[obid].protect;
             int total_def = 0;
@@ -221,7 +221,7 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         i = 0;
         for(auto ship : sorted_ships) {
             if (o->shipno == i) {
-                objectno = lookup_object(ItemDefs[ship->type].name);
+                objectno = lookup_object(Game::ItemDefs[ship->type].name);
                 if (objectno >= 0 && ObjectDefs[objectno].protect > 0) {
                     o->capacity = ObjectDefs[objectno].protect * ship->num;
                     o->type = objectno;
@@ -250,9 +250,9 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
     }
 
     /* Is this a monster? */
-    if (ItemDefs[r].type & IT_MONSTER) {
-        auto mp = find_monster(ItemDefs[r].abr, (ItemDefs[r].type & IT_ILLUSION))->get();
-        if((u->type == U_WMON) || (ItemDefs[r].flags & ItemType::MANPRODUCE))
+    if (Game::ItemDefs[r].type & IT_MONSTER) {
+        auto mp = find_monster(Game::ItemDefs[r].abr, (Game::ItemDefs[r].type & IT_ILLUSION))->get();
+        if((u->type == U_WMON) || (Game::ItemDefs[r].flags & ItemType::MANPRODUCE))
             name = mp.name + " in " + unit->name;
         else
             name = mp.name + " controlled by " + unit->name;
@@ -291,7 +291,7 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         // Check preferred armor first.
         int item = unit->readyArmor[i];
         if (item == -1) break;
-        item = unit->get_armor(ItemDefs[item].abr, ass);
+        item = unit->get_armor(Game::ItemDefs[item].abr, ass);
         if (item != -1) {
             armor = item;
             break;
@@ -319,17 +319,17 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         // Mounts of some type _are_ allowed in this region
         //
         int item = -1;
-        if (ItemDefs[race].type & IT_MOUNT) {
+        if (Game::ItemDefs[race].type & IT_MOUNT) {
             // If the man is a mount (Centaurs), then the only option
             // they have for riding is the built-in one
-            item = unit->get_mount(ItemDefs[race].abr, canFly, canRide, ridingBonus);
+            item = unit->get_mount(Game::ItemDefs[race].abr, canFly, canRide, ridingBonus);
         } else {
             for (const auto& mount : MountDefs) {
                 // See if this mount is an option
                 item = unit->get_mount(mount.abbr, canFly, canRide, ridingBonus);
                 if (item == -1) continue;
                 // No riding other men in combat
-                if (ItemDefs[item].type & IT_MAN) {
+                if (Game::ItemDefs[item].type & IT_MAN) {
                     item = -1;
                     ridingBonus = 0;
                     continue;
@@ -361,7 +361,7 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         int item = unit->readyWeapon[i];
         if (item == -1) break;
         item = unit->get_weapon(
-            ItemDefs[item].abr, riding, ridingBonus, attackBonus, defenseBonus, numAttacks, numHitDamage
+            Game::ItemDefs[item].abr, riding, ridingBonus, attackBonus, defenseBonus, numAttacks, numHitDamage
         );
         if (item != -1) {
             weapon = item;
@@ -391,8 +391,8 @@ Soldier::Soldier(Unit * u,Object * o,int regtype,int r,int ass)
         // Weapons (like Runeswords) which are both weapons and battle
         // items will be skipped in the battle items setup and handled
         // here.
-        if ((ItemDefs[weapon].type & IT_BATTLE) && special == NULL) {
-            auto pBat = find_battle_item(ItemDefs[weapon].abr)->get();
+        if ((Game::ItemDefs[weapon].type & IT_BATTLE) && special == NULL) {
+            auto pBat = find_battle_item(Game::ItemDefs[weapon].abr)->get();
             special = pBat.special;
             slevel = pBat.skillLevel;
         }
@@ -572,7 +572,7 @@ void Soldier::clear_one_time_effects(void)
 
 bool Soldier::armor_protect(int weaponClass)
 {
-    auto armor_type = (armor > 0) ? find_armor(ItemDefs[armor].abr) : std::nullopt;
+    auto armor_type = (armor > 0) ? find_armor(Game::ItemDefs[armor].abr) : std::nullopt;
     if (!armor_type) return false;
     int chance = armor_type->get().saves[weaponClass];
 
@@ -597,7 +597,7 @@ void Soldier::RestoreItems()
         unit->items.SetNum(weapon,unit->items.GetNum(weapon) + 1);
     if (armor != -1)
         unit->items.SetNum(armor,unit->items.GetNum(armor) + 1);
-    if (riding != -1 && !(ItemDefs[riding].type & IT_MAN))
+    if (riding != -1 && !(Game::ItemDefs[riding].type & IT_MAN))
         unit->items.SetNum(riding,unit->items.GetNum(riding) + 1);
 
     for (auto pBat : BattleItemDefs) {
@@ -688,7 +688,7 @@ Army::Army(Unit *ldr, std::list<Location *>& locs, int regtype, int ass)
             for(auto it : u->items) {
                 if (!it) continue;
 
-                ItemType &item = ItemDefs[it->type];
+                ItemType &item = Game::ItemDefs[it->type];
                 // Bug when assassinating STED/CATA if they are the only type in the unit
                 // Should they be able to be assassinted? Unknown, but for now, allow it and preference
                 // men first, but if the unit only has sted or cata, choose 1.
@@ -710,7 +710,7 @@ Army::Army(Unit *ldr, std::list<Location *>& locs, int regtype, int ass)
             for(auto it : u->items) {
                 if (IsSoldier(it->type)) {
                     for (int i = 0; i < it->num; i++) {
-                        ItemType &item = ItemDefs[ it->type ];
+                        ItemType &item = Game::ItemDefs[ it->type ];
                         if (((item.type & IT_MAN) || (item.flags & ItemType::MANPRODUCE)) && u->GetFlag(FLAG_BEHIND)) {
                             --y;
                             soldiers[y] = new Soldier(u, obj, regtype, it->type);
@@ -788,7 +788,7 @@ void Army::GetMonSpoils(ItemList& spoils, int monitem, int free)
     }
 
     /* First, silver */
-    auto mp = find_monster(ItemDefs[monitem].abr, (ItemDefs[monitem].type & IT_ILLUSION))->get();
+    auto mp = find_monster(Game::ItemDefs[monitem].abr, (Game::ItemDefs[monitem].type & IT_ILLUSION))->get();
     int silv = mp.silver;
     if ((Globals->MONSTER_NO_SPOILS > 0) && (free > 0)) {
         // Adjust the spoils for length of freedom.
@@ -806,9 +806,9 @@ void Army::GetMonSpoils(ItemList& spoils, int monitem, int free)
     int i;
     for (i=0; i<NITEMS; i++) {
         if (
-            (ItemDefs[i].type & thespoil) && !(ItemDefs[i].type & IT_SPECIAL) && !(ItemDefs[i].type & IT_SHIP) &&
-            !(ItemDefs[i].type & IT_NEVER_SPOIL) && (ItemDefs[i].baseprice <= mp.silver) &&
-            !(ItemDefs[i].flags & ItemType::DISABLED)
+            (Game::ItemDefs[i].type & thespoil) && !(Game::ItemDefs[i].type & IT_SPECIAL) && !(Game::ItemDefs[i].type & IT_SHIP) &&
+            !(Game::ItemDefs[i].type & IT_NEVER_SPOIL) && (Game::ItemDefs[i].baseprice <= mp.silver) &&
+            !(Game::ItemDefs[i].flags & ItemType::DISABLED)
         ) {
             count ++;
         }
@@ -818,9 +818,9 @@ void Army::GetMonSpoils(ItemList& spoils, int monitem, int free)
 
     for (i=0; i<NITEMS; i++) {
         if (
-            (ItemDefs[i].type & thespoil) && !(ItemDefs[i].type & IT_SPECIAL) && !(ItemDefs[i].type & IT_SHIP) &&
-            !(ItemDefs[i].type & IT_NEVER_SPOIL) && (ItemDefs[i].baseprice <= mp.silver) &&
-            !(ItemDefs[i].flags & ItemType::DISABLED)
+            (Game::ItemDefs[i].type & thespoil) && !(Game::ItemDefs[i].type & IT_SPECIAL) && !(Game::ItemDefs[i].type & IT_SHIP) &&
+            !(Game::ItemDefs[i].type & IT_NEVER_SPOIL) && (Game::ItemDefs[i].baseprice <= mp.silver) &&
+            !(Game::ItemDefs[i].flags & ItemType::DISABLED)
         ) {
             count--;
             if (count == 0) {
@@ -839,7 +839,7 @@ void Army::GetMonSpoils(ItemList& spoils, int monitem, int free)
 
     spoils.SetNum(
         thespoil,
-        spoils.GetNum(thespoil) + (val + rng::get_random(ItemDefs[thespoil].baseprice)) / ItemDefs[thespoil].baseprice
+        spoils.GetNum(thespoil) + (val + rng::get_random(Game::ItemDefs[thespoil].baseprice)) / Game::ItemDefs[thespoil].baseprice
     );
 }
 
@@ -880,7 +880,7 @@ void Army::Lose(Battle *b, ItemList& spoils)
         if (i < notbehind) {
             s->Alive(LOSS);
         } else {
-            if ((s->unit->type==U_WMON) && (ItemDefs[s->race].type&IT_MONSTER))
+            if ((s->unit->type==U_WMON) && (Game::ItemDefs[s->race].type&IT_MONSTER))
                 GetMonSpoils(spoils,s->race,s->unit->free);
             s->Dead();
         }
@@ -1010,7 +1010,7 @@ void Army::Win(Battle * b, ItemList& spoils)
                 }
 
                 ns = units.size();
-                if (ItemDefs[i->type].type & IT_SHIP) {
+                if (Game::ItemDefs[i->type].type & IT_SHIP) {
                     int t = rng::get_random(ns);
                     Unit *u = units[t];
                     if (u && u->CanGetSpoil(i)) {
@@ -1022,7 +1022,7 @@ void Army::Win(Battle * b, ItemList& spoils)
                 }
                 while (ns > 0 && i->num >= ns) {
                     int chunk = 1;
-                    if (!ItemDefs[i->type].weight) {
+                    if (!Game::ItemDefs[i->type].weight) {
                         chunk = i->num / ns;
                     }
                     for(auto it = units.begin(); it != units.end();) {
@@ -1346,7 +1346,7 @@ int Army::DoAnAttack(Battle * b, char const *special, int numAttacks, int attack
         Soldier * tar = GetTarget(tarnum);
         int tarFlags = 0;
         if (tar->weapon != -1) {
-            auto weapon = find_weapon(ItemDefs[tar->weapon].abr)->get();
+            auto weapon = find_weapon(Game::ItemDefs[tar->weapon].abr)->get();
             tarFlags = weapon.flags;
         }
 
@@ -1379,8 +1379,8 @@ int Army::DoAnAttack(Battle * b, char const *special, int numAttacks, int attack
 
         // 4.4 Check for weapon inflicted bonuses
         if (weaponIndex != -1 && tar->weapon != -1) {
-            auto attackerWeapon = find_weapon(ItemDefs[weaponIndex].abr)->get();
-            auto targetWeapon = find_weapon(ItemDefs[tar->weapon].abr)->get();
+            auto attackerWeapon = find_weapon(Game::ItemDefs[weaponIndex].abr)->get();
+            auto targetWeapon = find_weapon(Game::ItemDefs[tar->weapon].abr)->get();
 
             const WeaponBonusMalus *attackerBm = GetWeaponBonusMalus(attackerWeapon, targetWeapon);
             const WeaponBonusMalus *defenderBm = GetWeaponBonusMalus(targetWeapon, attackerWeapon);
@@ -1443,8 +1443,8 @@ int Army::DoAnAttack(Battle * b, char const *special, int numAttacks, int attack
             }
 
             ret++;
-            if ((ItemDefs[tar->race].type & IT_MAN) &&
-                (ItemDefs[attacker->race].type & IT_UNDEAD)) {
+            if ((Game::ItemDefs[tar->race].type & IT_MAN) &&
+                (Game::ItemDefs[attacker->race].type & IT_UNDEAD)) {
                 if (rng::get_random(100) < Globals->UNDEATH_CONTAGION) {
                     attacker->unit->raised++;
                     tar->canbehealed = 0;
@@ -1477,8 +1477,8 @@ void Army::Kill(int killed, int damage)
 
     temp->unit->losses++;
     if (Globals->ARMY_ROUT == GameDefs::ARMY_ROUT_HITS_FIGURE) {
-        if (ItemDefs[temp->race].type & IT_MONSTER) {
-            auto mp = find_monster(ItemDefs[temp->race].abr, (ItemDefs[temp->race].type & IT_ILLUSION))->get();
+        if (Game::ItemDefs[temp->race].type & IT_MONSTER) {
+            auto mp = find_monster(Game::ItemDefs[temp->race].abr, (Game::ItemDefs[temp->race].type & IT_ILLUSION))->get();
             hitsalive -= mp.hits;
         } else {
             // Assume everything that is a solder and isn't a monster is a

@@ -897,7 +897,7 @@ void ARegionList::RaceAnchors(ARegionArray *pArr)
                         int rnum = sizeof(TerrainDefs[nreg->type].coastal_races) /
                             sizeof(TerrainDefs[nreg->type].coastal_races[0]);
 
-                        while ( reg->race == -1 || (ItemDefs[reg->race].flags & ItemType::DISABLED)) {
+                        while ( reg->race == -1 || (Game::ItemDefs[reg->race].flags & ItemType::DISABLED)) {
                             reg->race = TerrainDefs[nreg->type].coastal_races[rng::get_random(rnum)];
                             if (++wigout > 100) break;
                         }
@@ -913,7 +913,7 @@ void ARegionList::RaceAnchors(ARegionArray *pArr)
                 int rnum = sizeof(TerrainDefs[reg->type].races)/sizeof(TerrainDefs[reg->type].races[0]);
 
                 while ( reg->race == -1 ||
-                        (ItemDefs[reg->race].flags & ItemType::DISABLED)) {
+                        (Game::ItemDefs[reg->race].flags & ItemType::DISABLED)) {
                     reg->race = TerrainDefs[reg->type].races[rng::get_random(rnum)];
                     if (++wigout > 100) break;
                 }
@@ -967,7 +967,7 @@ void ARegionList::GrowRaces(ARegionArray *pArr)
                         if (TerrainDefs[nreg->type].similar_type == R_OCEAN)
                             ch += 2;
                     } else {
-                        auto mt = find_race(ItemDefs[reg->race].abr)->get();
+                        auto mt = find_race(Game::ItemDefs[reg->race].abr)->get();
                         if (mt.terrain==TerrainDefs[nreg->type].similar_type) ch += 2;
                         int rnum = sizeof(TerrainDefs[nreg->type].races) / sizeof(TerrainDefs[nreg->type].races[0]);
                         for (int i=0; i<rnum; i++) {

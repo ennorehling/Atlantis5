@@ -531,4 +531,6 @@ enum {
     R_NUM
 };
 
+#include "game.h"
+
 #endif // GAMEDATA_H

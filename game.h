@@ -111,6 +111,7 @@ public:
     void RecordFact(FactBase *fact);
     void WriteWorldEvents();
 
+    static std::vector<ItemType> ItemDefs;
 private:
     //
     // Game editing functions.

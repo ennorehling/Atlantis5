@@ -231,7 +231,7 @@ std::vector<FactionStatistic> Faction::compute_faction_statistics(Game *game, si
     auto myfaction = this->num - 1; // offset by 1 since the citems array are 0-based and factions are 1-based.
 
     for (auto i = 0; i < NITEMS; i++) {
-        if (ItemDefs[i].type & IT_SHIP) continue;
+        if (Game::ItemDefs[i].type & IT_SHIP) continue;
         if(citems[myfaction][i] == 0) continue;
         size_t place = 1;
         size_t max = 0;
@@ -244,10 +244,10 @@ std::vector<FactionStatistic> Faction::compute_faction_statistics(Game *game, si
         }
 
         size_t amt = citems[myfaction][i];
-        bool illusory = (ItemDefs[i].type & IT_MONSTER) && (ItemDefs[i].type & IT_ILLUSION);
-        std::string name = ItemDefs[i].name;
-        std::string tag = ItemDefs[i].abr;
-        std::string plural = ItemDefs[i].names;
+        bool illusory = (Game::ItemDefs[i].type & IT_MONSTER) && (Game::ItemDefs[i].type & IT_ILLUSION);
+        std::string name = Game::ItemDefs[i].name;
+        std::string tag = Game::ItemDefs[i].abr;
+        std::string plural = Game::ItemDefs[i].names;
         stats.push_back({
             .name = name, .tag = tag, .plural = plural, .amount = amt,
             .rank = place, .max = max, .total = total, .illusion = illusory
@@ -609,7 +609,7 @@ int Faction::CanSee(ARegion* r, Unit* u, int practice)
 
     // If the unit has any items which prevent stealth, then we can see them.
     for(auto item : u->items) {
-        if (ItemDefs[item->type].flags & ItemType::NOSTEALTH) return 1;
+        if (Game::ItemDefs[item->type].flags & ItemType::NOSTEALTH) return 1;
     }
 
     int retval = 0;
@@ -712,9 +712,9 @@ void Faction::DiscoverItem(int item, int force, int full)
         // If we've found an item that grants a skill, give a
         // report on the skill granted (if we haven't seen it
         // before)
-        skill = lookup_skill(ItemDefs[item].grantSkill);
+        skill = lookup_skill(Game::ItemDefs[item].grantSkill);
         if (skill != -1 && !(SkillDefs[skill].flags & SkillType::DISABLED)) {
-            for (i = 1; i <= ItemDefs[item].maxGrant; i++) {
+            for (i = 1; i <= Game::ItemDefs[item].maxGrant; i++) {
                 if (i > skills.GetDays(skill)) {
                     skills.SetDays(skill, i);
                     shows.push_back({ .skill = skill, .level = i });

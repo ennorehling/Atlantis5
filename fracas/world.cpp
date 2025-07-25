@@ -2499,27 +2499,27 @@ void ARegion::MakeStartingCity()
     Market *m;
     if (Globals->START_CITIES_START_UNLIMITED) {
         for (int i=0; i<NITEMS; i++) {
-            if ( ItemDefs[i].flags & ItemType::DISABLED ) continue;
-            if ( ItemDefs[ i ].type & IT_NORMAL ) {
+            if ( Game::ItemDefs[i].flags & ItemType::DISABLED ) continue;
+            if ( Game::ItemDefs[ i ].type & IT_NORMAL ) {
                 if (i==I_SILVER || i==I_LIVESTOCK || i==I_FISH || i==I_GRAIN)
                     continue;
-                m = new Market(Market::MarketType::M_BUY, i, (ItemDefs[i].baseprice * 5 / 2), -1, 5000, 5000, -1, -1);
+                m = new Market(Market::MarketType::M_BUY, i, (Game::ItemDefs[i].baseprice * 5 / 2), -1, 5000, 5000, -1, -1);
                 markets.push_back(m);
             }
         }
-        ratio = ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+        ratio = Game::ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
         // hack: include wage factor of 10 in float calculation above
         m = new Market(Market::MarketType::M_BUY, race, (int)(Wages() * 4 * ratio), -1, 5000, 5000, -1, -1);
         markets.push_back(m);
         if (Globals->LEADERS_EXIST) {
-            ratio=ItemDefs[I_LEADERS].baseprice/((float)Globals->BASE_MAN_COST * 10);
+            ratio=Game::ItemDefs[I_LEADERS].baseprice/((float)Globals->BASE_MAN_COST * 10);
             // hack: include wage factor of 10 in float calculation above
             m = new Market(Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), -1, 5000, 5000, -1, -1);
             markets.push_back(m);
         }
     } else {
         SetupCityMarket();
-        ratio = ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
+        ratio = Game::ItemDefs[race].baseprice / ((float)Globals->BASE_MAN_COST * 10);
         // hack: include wage factor of 10 in float calculation above
         /* Setup Recruiting */
         m = new Market(
@@ -2527,7 +2527,7 @@ void ARegion::MakeStartingCity()
         );
         markets.push_back(m);
         if ( Globals->LEADERS_EXIST ) {
-            ratio=ItemDefs[I_LEADERS].baseprice/((float)Globals->BASE_MAN_COST * 10);
+            ratio=Game::ItemDefs[I_LEADERS].baseprice/((float)Globals->BASE_MAN_COST * 10);
             // hack: include wage factor of 10 in float calculation above
             m = new Market(
                 Market::MarketType::M_BUY, I_LEADERS, (int)(Wages() * 4 * ratio), Population() / 25, 0, 10000, 0, 400
